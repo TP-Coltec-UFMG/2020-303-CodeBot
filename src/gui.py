@@ -12,8 +12,8 @@ def draw_box(screen, rect, colour, force=False):
 def fill_rect(screen, rect, colour):
     c = pygame.Color(colour)
     s = pygame.Surface(rect.size)  # the size of your rect
-    s.set_alpha(c.a)                # alpha level
-    s.fill(c)           # this fills the entire surface
+    s.set_alpha(c.a)  # alpha level
+    s.fill(c)  # this fills the entire surface
     screen.blit(s, rect.topleft)
 
 
@@ -50,7 +50,6 @@ class Element:
     def tree_print(self, level=0):
         def indent(lvl):
             print('  ' * lvl, end='')
-
         indent(level)
         print("{")
         indent(level + 1)

@@ -10,8 +10,8 @@ def main():
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
     xml = gui.LoaderXML("res/test.xml")
     ui = xml.get_tree()
-    # ui.tree_print()
-    draw_this()
+    ui.tree_print()
+    # draw_this()
     while True:
         draw_this()
         pygame.display.update()
