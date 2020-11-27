@@ -11,7 +11,7 @@ def main():
     xml = gui.LoaderXML("res/test.xml")
     ui = xml.get_tree()
     # ui.tree_print()
-    # draw_this()
+    draw_this()
     while True:
         draw_this()
         pygame.display.update()
