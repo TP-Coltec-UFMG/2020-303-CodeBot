@@ -1,9 +1,16 @@
 <overlap>
     <vertical align="proportional" colour="#003f00FF">
         <horizontal length="40%" align="centre">
-            <vertical length="80%" align="down">
-                <image length="90%" w="400" h="100" align="down" source="title.png"/>
-            </vertical>
+            <space length="10%"/>
+            <overlap>
+                <horizontal>
+                    <space length="350px"/>
+                </horizontal>
+                <vertical align="down">
+                    <image length="80%" w="400" h="100" align="down" source="title.png"/>
+                </vertical>
+            </overlap>
+            <space length="10%"/>
         </horizontal>
         <space length="5%"/>
         <horizontal align="centre">
