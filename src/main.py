@@ -2,11 +2,12 @@ import pygame
 import gui
 
 
-def main():
-    def draw_this():
+def main() -> None:
+    def draw_this() -> None:
         screen.fill((0, 0, 0, 0))
         ui.draw(screen, screen.get_clip())
     pygame.init()
+    gui.init()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
     xml = gui.LoaderXML("res/test.xml")
     ui = xml.get_tree()

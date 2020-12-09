@@ -2,14 +2,22 @@ import html.parser
 import pygame
 
 
-def draw_box(screen, rect, colour, force=False):
+_font = None
+
+
+def init() -> None:
+    global _font
+    _font = pygame.font.Font("res/JetBrainsMono-Regular.ttf", 30)
+
+
+def draw_box(screen: pygame.Surface, rect: pygame.Rect, colour, force: bool = False) -> None:
     if force:
         x, y, w, h = rect.x, rect.y, rect.w, rect.h
         pygame.draw.rect(screen, 0x000000, (x + 2, y + 2, w - 4, h - 4), 4)
-        pygame.draw.rect(screen, colour, (x + 4, y + 4, w - 8, h - 8), 2, -1)
+        pygame.draw.rect(screen, colour, (x + 4, y + 4, w - 8, h - 8), 2)
 
 
-def fill_rect(screen, rect, colour):
+def fill_rect(screen: pygame.Surface, rect: pygame.Rect, colour) -> None:
     c = pygame.Color(colour)
     s = pygame.Surface(rect.size)  # the size of your rect
     s.set_alpha(c.a)  # alpha level
@@ -18,7 +26,7 @@ def fill_rect(screen, rect, colour):
 
 
 class Element:
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         self.tag = tag
         self.children = []
         self.data = ""
@@ -35,21 +43,22 @@ class Element:
             elif k == "group":
                 self.group = v
 
-    def add_child(self, elem):
+    def add_child(self, elem) -> None:
         self.children.append(elem)
 
     # Overridable
-    def draw(self, screen, rect):
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
         pass
 
     # Overridable
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0., 0.)
 
     # DEBUGGING
-    def tree_print(self, level=0):
-        def indent(lvl):
+    def tree_print(self, level: int = 0) -> None:
+        def indent(lvl: int) -> None:
             print('  ' * lvl, end='')
+
         indent(level)
         print("{")
         indent(level + 1)
@@ -72,7 +81,7 @@ class Element:
 
 
 class Container(Element):
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         super().__init__(tag, attrs)
         self.align = "justify"
         self.colour = 0x00000000
@@ -85,7 +94,7 @@ class Container(Element):
                 else:
                     self.colour = 0x00FFFFFF
 
-    def distribute(self, lengths, space, along_t):
+    def distribute(self, lengths: list, space: float, along_t: tuple) -> list:
         ret = []
         start_l, start_c, along, across = along_t
         if self.align == "before":
@@ -117,7 +126,7 @@ class Container(Element):
                     axis_l += lengths[i] + space / (len(self.children) - 1)
         return ret
 
-    def repart(self, rect, rect2along):
+    def repart(self, rect: pygame.Rect, rect2along: callable) -> list:
         start_l, start_c, along, across = rect2along(rect)
         lengths = [0. for _ in self.children]
         auto_sized = []
@@ -175,7 +184,7 @@ class Container(Element):
                 available_size -= lengths[i]
             return self.distribute(lengths, available_size, rect2along(rect))
 
-    def calc_min(self, rect2along):
+    def calc_min(self, rect2along: callable) -> tuple:
         along = 0
         across = 0
         along_percent = 1
@@ -196,7 +205,7 @@ class Container(Element):
 
 
 class Space(Element):
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         super().__init__(tag, attrs)
         self.colour = 0x00000000
         for k, v in self.attrs.items():
@@ -206,15 +215,15 @@ class Space(Element):
                 else:
                     self.colour = 0x00FFFFFF
 
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
 
-    def draw(self, screen, rect):
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
         fill_rect(screen, rect, self.colour)
 
 
 class Image(Element):
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         super().__init__(tag, attrs)
         self.source = "missing"
         for k, v in self.attrs.items():
@@ -227,8 +236,8 @@ class Image(Element):
             elif k == "h":
                 self.height = float(v)
 
-    def draw(self, screen, rect):
-        font_surface = pygame.font.SysFont("Comic Sans", 30).render(self.source, True, 0xFFFFFFFF, 0x000000)
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
+        font_surface = _font.render(self.source, True, 0xFFFFFFFF, 0x000000)
         if rect.w / rect.h > self.width / self.height:
             w = self.width * rect.h / self.height
             if self.align == "left":
@@ -250,24 +259,24 @@ class Image(Element):
         draw_box(screen, r, 0xFFFFFF, True)
         screen.blit(font_surface, (r.x + 10, r.y + 10))
 
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
 
 
 class Button(Element):
-    def draw(self, screen, rect):
-        font_surface = pygame.font.SysFont("Comic Sans", 30).render(self.data, True, 0xFFFFFFFF, 0x000000)
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
+        font_surface = _font.render(self.data, True, 0xFFFFFFFF, 0x000000)
         fill_rect(screen, rect, 0xFF00FF7F)
         draw_box(screen, rect, 0xFF00FF, True)
         screen.blit(font_surface, (rect.x + 10, rect.y + 10))
 
-    def get_min(self):
-        font_size = pygame.font.SysFont("Comic Sans", 30).size(self.data)
+    def get_min(self) -> pygame.Rect:
+        font_size = _font.size(self.data)
         return pygame.Rect(0, 0, font_size[0] + 20, font_size[1] + 20)
 
 
 class Horizontal(Container):
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         super().__init__(tag, attrs)
         # Generalise horizontal-specific values to container-compatible ones
         if self.align == "left":
@@ -275,20 +284,20 @@ class Horizontal(Container):
         if self.align == "right":
             self.align = "after"
 
-    def draw(self, screen, rect):
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
         fill_rect(screen, rect, self.colour)
         draw_box(screen, rect, 0xFF0000)
         items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
         for along_t, c in items:
             c.draw(screen, pygame.Rect(*along_t))
 
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         along_t = self.calc_min(lambda r: (r.x, r.y, r.w, r.h))
         return pygame.Rect(*along_t)
 
 
 class Vertical(Container):
-    def __init__(self, tag, attrs):
+    def __init__(self, tag: str, attrs: dict) -> None:
         super().__init__(tag, attrs)
         # Generalise vertical-specific values to container-compatible ones
         if self.align == "up":
@@ -296,25 +305,25 @@ class Vertical(Container):
         if self.align == "down":
             self.align = "after"
 
-    def draw(self, screen, rect):
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
         fill_rect(screen, rect, self.colour)
         draw_box(screen, rect, 0x00FF00)
         items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
         for along_t, c in items:
             c.draw(screen, pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]))
 
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         along_t = self.calc_min(lambda r: (r.y, r.x, r.h, r.w))
         return pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2])
 
 
 class Overlap(Element):
-    def draw(self, screen, rect):
+    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
         for c in self.children:
             c.draw(screen, rect)
         draw_box(screen, rect, 0xFFFF00)
 
-    def get_min(self):
+    def get_min(self) -> pygame.Rect:
         w, h = 0, 0
         for c in self.children:
             r = c.get_min()
@@ -324,7 +333,7 @@ class Overlap(Element):
 
 
 class LoaderXML(html.parser.HTMLParser):
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
         super().__init__()
         self.filename = filename
         self.tree = None
@@ -341,10 +350,10 @@ class LoaderXML(html.parser.HTMLParser):
         if not self.tree:
             self.error("Unexpected EOF")
 
-    def get_tree(self):
+    def get_tree(self) -> Element:
         return self.tree
 
-    def tree_builder(self, elem=None):
+    def tree_builder(self, elem: Element = None) -> iter:
         while True:
             args = yield
             if args.call == "start":
@@ -375,58 +384,58 @@ class LoaderXML(html.parser.HTMLParser):
                     self.error(f"Closing tags do not match ({elem.tag} != {args.tag})")
                 return
 
-    def error(self, message):
+    def error(self, message: str) -> None:
         ln, cl = self.getpos()
         txt_line = self.text.split('\n')[ln - 1]
         raise SyntaxError(message, (self.filename, ln, cl, txt_line))
 
     # Handler argument passing helper classes
     class HandlerArgs:
-        def __init__(self, call):
+        def __init__(self, call: str) -> None:
             self.call = call
 
     class StartTag(HandlerArgs):
-        def __init__(self, tag, attrs):
+        def __init__(self, tag: str, attrs: dict) -> None:
             super().__init__("start")
             self.tag = tag
             self.attrs = attrs
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f"StartTag({self.tag}, {self.attrs})"
 
     class EndTag(HandlerArgs):
-        def __init__(self, tag):
+        def __init__(self, tag: str) -> None:
             super().__init__("end")
             self.tag = tag
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f"EndTag({self.tag})"
 
     class TagData(HandlerArgs):
-        def __init__(self, data):
+        def __init__(self, data: str) -> None:
             super().__init__("data")
             self.data = data
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f"TagData({self.data})"
 
     # Handlers
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag: str, attrs: dict) -> None:
         self.gen.send(LoaderXML.StartTag(tag, attrs))
 
-    def handle_endtag(self, tag):
+    def handle_endtag(self, tag: str) -> None:
         self.gen.send(LoaderXML.EndTag(tag))
 
-    def handle_startendtag(self, tag, attrs):
+    def handle_startendtag(self, tag: str, attrs: dict) -> None:
         self.handle_starttag(tag, attrs)
 
-    def handle_data(self, data):
+    def handle_data(self, data: str) -> None:
         text = data.strip()
         if text != "":
             self.gen.send(LoaderXML.TagData(text))
 
     # Tag tables
-    tags = {
+    tags: dict = {
         "horizontal": Horizontal,
         "vertical": Vertical,
         "lengthwise": None,
@@ -435,7 +444,7 @@ class LoaderXML(html.parser.HTMLParser):
         "button": Button
     }
 
-    elements = {
+    elements: dict = {
         "image": Image,
         "text": Element,
         "space": Space
@@ -443,5 +452,6 @@ class LoaderXML(html.parser.HTMLParser):
 
 
 if __name__ == '__main__':
+    # init()
     xml = LoaderXML("res/test.xml")
     xml.get_tree().tree_print()
