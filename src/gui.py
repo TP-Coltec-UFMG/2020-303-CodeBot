@@ -2,7 +2,7 @@ import html.parser
 import pygame
 
 
-_font = None
+_font: pygame.font.Font
 
 
 def init() -> None:
@@ -237,7 +237,8 @@ class Image(Element):
                 self.height = float(v)
 
     def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        font_surface = _font.render(self.source, True, 0xFFFFFFFF, 0x000000)
+        font_surface = _font.render(self.source, True, 0xFFFFFFFF)
+
         if rect.w / rect.h > self.width / self.height:
             w = self.width * rect.h / self.height
             if self.align == "left":
@@ -255,7 +256,7 @@ class Image(Element):
             else:
                 r = pygame.Rect(rect.x, rect.y + (rect.h - h) / 2, rect.w, h)
         draw_box(screen, rect, 0x0000FF)
-        fill_rect(screen, r, 0xFFFFFF7F)
+        fill_rect(screen, r, 0x0000007F)
         draw_box(screen, r, 0xFFFFFF, True)
         screen.blit(font_surface, (r.x + 10, r.y + 10))
 
@@ -265,8 +266,8 @@ class Image(Element):
 
 class Button(Element):
     def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        font_surface = _font.render(self.data, True, 0xFFFFFFFF, 0x000000)
-        fill_rect(screen, rect, 0xFF00FF7F)
+        font_surface = _font.render(self.data, True, 0xFFFFFFFF)
+        fill_rect(screen, rect, 0x7F007FFF)
         draw_box(screen, rect, 0xFF00FF, True)
         screen.blit(font_surface, (rect.x + 10, rect.y + 10))
 
@@ -349,6 +350,9 @@ class LoaderXML(html.parser.HTMLParser):
             self.error("Unexpected tokens after root tag")
         if not self.tree:
             self.error("Unexpected EOF")
+
+        del self.text
+        del self.gen
 
     def get_tree(self) -> Element:
         return self.tree
@@ -453,5 +457,5 @@ class LoaderXML(html.parser.HTMLParser):
 
 if __name__ == '__main__':
     # init()
-    xml = LoaderXML("res/test.xml")
-    xml.get_tree().tree_print()
+    tree = LoaderXML("res/test.xml").get_tree()
+    tree.tree_print()

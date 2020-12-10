@@ -9,8 +9,7 @@ def main() -> None:
     pygame.init()
     gui.init()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-    xml = gui.LoaderXML("res/test.xml")
-    ui = xml.get_tree()
+    ui = gui.LoaderXML("res/test.xml").get_tree()
     ui.tree_print()
     # draw_this()
     while True:
