@@ -7,13 +7,13 @@ def main() -> None:
     pygame.init()
     gui.init()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-    ui = gui.LoaderXML("res/test.xml").get_tree()
+    ui = gui.LoaderXML("res/test.xml").get_document()
 
-    ui.tree_print()
+    ui.root.tree_print()
 
     while True:
         screen.fill((0, 0, 0, 0))
-        ui.draw(screen, screen.get_clip())
+        ui.root.draw(screen, screen.get_clip())
         pygame.display.update()
 
         for e in pygame.event.get():

@@ -1,7 +1,6 @@
 import html.parser
 import pygame
 
-
 _font: pygame.font.Font
 
 
@@ -25,23 +24,36 @@ def fill_rect(screen: pygame.Surface, rect: pygame.Rect, colour) -> None:
     screen.blit(s, rect.topleft)
 
 
+def draw_text(screen: pygame.Surface, rect: pygame.Rect, data: str, colour):
+    font_surface = _font.render(data, True, colour)
+    screen.blit(font_surface, (rect.x + 10, rect.y + 10))
+
+
 class Element:
-    def __init__(self, tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
         self.tag = tag
         self.children = []
         self.data = ""
 
-        self.attrs = {}
-        for key, value in attrs:
-            self.attrs[key] = value
+        self.rect = None
+        self.attrs = attrs
 
-        self.length = "auto"
-        self.group = "none"
-        for k, v in self.attrs.items():
-            if k == "length":
-                self.length = v
-            elif k == "group":
-                self.group = v
+        if "length" in attrs:
+            self.length = attrs["length"]
+        else:
+            self.length = "auto"
+
+        if "id" in attrs:
+            self.id = attrs["id"]
+            document.ids[attrs["id"]] = self
+        else:
+            self.id = None
+
+        if "on_click" in attrs:
+            self.on_click = attrs["on_click"]
+            document.on_click.append(self)
+        else:
+            self.on_click = None
 
     def add_child(self, elem) -> None:
         self.children.append(elem)
@@ -57,42 +69,48 @@ class Element:
     # DEBUGGING
     def tree_print(self, level: int = 0) -> None:
         def indent(lvl: int) -> None:
-            print('  ' * lvl, end='')
+            print('    ' * lvl, end='')
 
         indent(level)
-        print("{")
-        indent(level + 1)
-        print(f"tag: <{self.tag}>,")
-        if len(self.attrs) > 0:
-            indent(level + 1)
-            print(f"attrs: [" + ", ".join([f"{k}='{v}'" for k, v in self.attrs.items()]) + "],")
+        print(
+            "<"
+            + " ".join((self.tag, *(f"{k}='{v}'" for k, v in self.attrs.items())))
+            + (">\n" if len(self.children) > 0 else ">"),
+            end=''
+        )
+
         if self.data != "":
-            indent(level + 1)
-            print(f"data: '{self.data}'")
+            print(self.data, end='')
         if len(self.children) > 0:
-            indent(level + 1)
-            print(f"children: [")
             for c in self.children:
-                c.tree_print(level + 2)
-            indent(level + 1)
-            print("]")
-        indent(level)
-        print("}")
+                c.tree_print(level + 1)
+            indent(level)
+        print(f"</{self.tag}>")
 
 
 class Container(Element):
-    def __init__(self, tag: str, attrs: dict) -> None:
-        super().__init__(tag, attrs)
-        self.align = "justify"
-        self.colour = 0x00000000
-        for k, v in self.attrs.items():
-            if k == "align":
-                self.align = v
-            elif k == "color" or k == "colour":
-                if v.startswith("#"):
-                    self.colour = int(v[1:], 16)
-                else:
-                    self.colour = 0x00FFFFFF
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+        super().__init__(document, tag, attrs)
+
+        if "align" in self.attrs:
+            self.align = self.attrs["align"]
+        else:
+            self.align = "justify"
+
+        if "color" in self.attrs:
+            v = self.attrs["color"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        elif "colour" in self.attrs:
+            v = self.attrs["colour"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        else:
+            self.colour = 0x00000000
 
     def distribute(self, lengths: list, space: float, along_t: tuple) -> list:
         ret = []
@@ -205,15 +223,22 @@ class Container(Element):
 
 
 class Space(Element):
-    def __init__(self, tag: str, attrs: dict) -> None:
-        super().__init__(tag, attrs)
-        self.colour = 0x00000000
-        for k, v in self.attrs.items():
-            if k == "color" or k == "colour":
-                if v.startswith("#"):
-                    self.colour = int(v[1:], 16)
-                else:
-                    self.colour = 0x00FFFFFF
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+        super().__init__(document, tag, attrs)
+        if "color" in self.attrs:
+            v = self.attrs["color"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        elif "colour" in self.attrs:
+            v = self.attrs["colour"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        else:
+            self.colour = 0x00000000
 
     def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
@@ -223,22 +248,30 @@ class Space(Element):
 
 
 class Image(Element):
-    def __init__(self, tag: str, attrs: dict) -> None:
-        super().__init__(tag, attrs)
-        self.source = "missing"
-        for k, v in self.attrs.items():
-            if k == "source":
-                self.source = v
-            elif k == "align":
-                self.align = v
-            elif k == "w":
-                self.width = float(v)
-            elif k == "h":
-                self.height = float(v)
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+        super().__init__(document, tag, attrs)
+
+        if "source" in self.attrs:
+            self.source = self.attrs["source"]
+        else:
+            self.source = None
+
+        if "align" in self.attrs:
+            self.align = self.attrs["align"]
+        else:
+            self.align = None
+
+        if "w" in self.attrs:
+            self.width = float(self.attrs["w"])
+        else:
+            self.width = None
+
+        if "h" in self.attrs:
+            self.height = float(self.attrs["h"])
+        else:
+            self.height = None
 
     def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        font_surface = _font.render(self.source, True, 0xFFFFFFFF)
-
         if rect.w / rect.h > self.width / self.height:
             w = self.width * rect.h / self.height
             if self.align == "left":
@@ -258,7 +291,7 @@ class Image(Element):
         draw_box(screen, rect, 0x0000FF)
         fill_rect(screen, r, 0x0000007F)
         draw_box(screen, r, 0xFFFFFF, True)
-        screen.blit(font_surface, (r.x + 10, r.y + 10))
+        draw_text(screen, r, self.source, 0xFFFFFFFF)
 
     def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
@@ -266,10 +299,9 @@ class Image(Element):
 
 class Button(Element):
     def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        font_surface = _font.render(self.data, True, 0xFFFFFFFF)
         fill_rect(screen, rect, 0x7F007FFF)
         draw_box(screen, rect, 0xFF00FF, True)
-        screen.blit(font_surface, (rect.x + 10, rect.y + 10))
+        draw_text(screen, rect, self.data, 0xFFFFFFFF)
 
     def get_min(self) -> pygame.Rect:
         font_size = _font.size(self.data)
@@ -277,8 +309,8 @@ class Button(Element):
 
 
 class Horizontal(Container):
-    def __init__(self, tag: str, attrs: dict) -> None:
-        super().__init__(tag, attrs)
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+        super().__init__(document, tag, attrs)
         # Generalise horizontal-specific values to container-compatible ones
         if self.align == "left":
             self.align = "before"
@@ -298,8 +330,8 @@ class Horizontal(Container):
 
 
 class Vertical(Container):
-    def __init__(self, tag: str, attrs: dict) -> None:
-        super().__init__(tag, attrs)
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+        super().__init__(document, tag, attrs)
         # Generalise vertical-specific values to container-compatible ones
         if self.align == "up":
             self.align = "before"
@@ -333,11 +365,29 @@ class Overlap(Element):
         return pygame.Rect(0, 0, w, h)
 
 
+class DocumentXML:
+    def __init__(self):
+        self.root = None
+        self.ids = dict()
+        self.on_click = list()
+        self.on_hover = list()
+        self.callbacks = None
+
+    def set_callbacks(self, callbacks: dict) -> None:
+        self.callbacks = callbacks
+
+    def set_root(self, root: Element) -> None:
+        self.root = root
+
+    def call_event(self, event: str) -> None:
+        self.callbacks[event]()
+
+
 class LoaderXML(html.parser.HTMLParser):
     def __init__(self, filename: str) -> None:
         super().__init__()
         self.filename = filename
-        self.tree = None
+        self.document = DocumentXML()
         with open(filename) as file:
             self.file = file
             text = file.read()
@@ -348,31 +398,33 @@ class LoaderXML(html.parser.HTMLParser):
             self.feed(text)
         except StopIteration:
             self.error("Unexpected tokens after root tag")
-        if not self.tree:
+        if not self.document.root:
             self.error("Unexpected EOF")
 
         del self.text
         del self.gen
 
-    def get_tree(self) -> Element:
-        return self.tree
+    def get_document(self) -> DocumentXML:
+        return self.document
 
     def tree_builder(self, elem: Element = None) -> iter:
         while True:
             args = yield
             if args.call == "start":
                 new_tag = None
+
                 if args.tag in LoaderXML.tags:
-                    new_tag = LoaderXML.tags[args.tag](args.tag, args.attrs)
+                    new_tag = LoaderXML.tags[args.tag](self.document, args.tag, args.attrs)
                     yield from self.tree_builder(new_tag)
                 elif args.tag in LoaderXML.elements:
-                    new_tag = LoaderXML.elements[args.tag](args.tag, args.attrs)
+                    new_tag = LoaderXML.elements[args.tag](self.document, args.tag, args.attrs)
                 else:
                     self.error(f"Unrecognised element '{args.tag}'")
+
                 if elem:
                     elem.add_child(new_tag)
                 else:
-                    self.tree = new_tag
+                    self.document.set_root(new_tag)
                     yield
                     return
             elif args.call == "data":
@@ -399,10 +451,14 @@ class LoaderXML(html.parser.HTMLParser):
             self.call = call
 
     class StartTag(HandlerArgs):
-        def __init__(self, tag: str, attrs: dict) -> None:
+        def __init__(self, tag: str, attrs: list) -> None:
             super().__init__("start")
             self.tag = tag
-            self.attrs = attrs
+            self.attrs = dict()
+
+            # Convert list of tuples [(name, value), ...] to dictionary
+            for k, v in attrs:
+                self.attrs[k] = v
 
         def __str__(self) -> str:
             return f"StartTag({self.tag}, {self.attrs})"
@@ -424,13 +480,13 @@ class LoaderXML(html.parser.HTMLParser):
             return f"TagData({self.data})"
 
     # Handlers
-    def handle_starttag(self, tag: str, attrs: dict) -> None:
+    def handle_starttag(self, tag: str, attrs: list) -> None:
         self.gen.send(LoaderXML.StartTag(tag, attrs))
 
     def handle_endtag(self, tag: str) -> None:
         self.gen.send(LoaderXML.EndTag(tag))
 
-    def handle_startendtag(self, tag: str, attrs: dict) -> None:
+    def handle_startendtag(self, tag: str, attrs: list) -> None:
         self.handle_starttag(tag, attrs)
 
     def handle_data(self, data: str) -> None:
@@ -457,5 +513,7 @@ class LoaderXML(html.parser.HTMLParser):
 
 if __name__ == '__main__':
     # init()
-    tree = LoaderXML("res/test.xml").get_tree()
-    tree.tree_print()
+    doc = LoaderXML("res/test.xml").get_document()
+    doc.root.tree_print()
+    print(doc.on_click)
+    print(doc.ids)
