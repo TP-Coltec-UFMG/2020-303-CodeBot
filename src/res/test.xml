@@ -1,30 +1,28 @@
-<overlap>
-    <vertical align="proportional" colour="#003f00FF">
-        <horizontal length="40%" align="centre">
-            <space length="10%"/>
-            <overlap>
-                <horizontal>
-                    <space length="350px"/>
-                </horizontal>
-                <vertical align="down">
-                    <image length="80%" w="400" h="100" align="down" source="title.png"/>
-                </vertical>
-            </overlap>
-            <space length="10%"/>
-        </horizontal>
-        <space length="5%"/>
-        <horizontal align="centre">
-            <space length="30%"/>
-            <vertical align="up">
-                <button length="min">title.start_game</button>
-                <space length="10px"/>
-                <button length="min">title.options</button>
-                <space length="10px"/>
-                <button length="min">title.languages</button>
-                <space length="10px"/>
-                <button length="min">title.quit</button>
+<vertical align="proportional" colour="#003f00FF">
+    <horizontal length="40%" align="centre">
+        <space length="10%"/>
+        <overlap>
+            <horizontal>
+                <space length="350px"/>
+            </horizontal>
+            <vertical align="down">
+                <image length="80%" w="400" h="100" align="down" source="title.png"/>
             </vertical>
-            <space length="30%"/>
-        </horizontal>
-    </vertical>
-</overlap>
+        </overlap>
+        <space length="10%"/>
+    </horizontal>
+    <space length="5%"/>
+    <horizontal align="centre">
+        <space length="30%"/>
+        <vertical align="up">
+            <button length="min">title.start_game</button>
+            <space length="10px"/>
+            <button length="min">title.options</button>
+            <space length="10px"/>
+            <button length="min">title.languages</button>
+            <space length="10px"/>
+            <button length="min">title.quit</button>
+        </vertical>
+        <space length="30%"/>
+    </horizontal>
+</vertical>

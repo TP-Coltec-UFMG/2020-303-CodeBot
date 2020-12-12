@@ -3,21 +3,25 @@ import gui
 
 
 def main() -> None:
-    def draw_this() -> None:
-        screen.fill((0, 0, 0, 0))
-        ui.draw(screen, screen.get_clip())
+    clk = pygame.time.Clock()
     pygame.init()
     gui.init()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
     ui = gui.LoaderXML("res/test.xml").get_tree()
+
     ui.tree_print()
-    # draw_this()
+
     while True:
-        draw_this()
+        screen.fill((0, 0, 0, 0))
+        ui.draw(screen, screen.get_clip())
         pygame.display.update()
+
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return
+
+        # Limit framerate so as to not heat up CPU unnecessarily
+        clk.tick(20)
 
 
 if __name__ == "__main__":
