@@ -4,19 +4,28 @@ import pygame
 _font: pygame.font.Font
 
 
-def init() -> None:
+def debug(func: callable):
+    def wrapper(*args, **kwargs):
+        print(f"Called {func.__name__} with: {args} {kwargs}")
+        ret = func(*args, **kwargs)
+        print(f"Returned {ret} from {func.__name__}")
+        return ret
+    return wrapper
+
+
+def init():
     global _font
     _font = pygame.font.Font("res/JetBrainsMono-Regular.ttf", 30)
 
 
-def draw_box(screen: pygame.Surface, rect: pygame.Rect, colour, force: bool = False) -> None:
+def draw_box(screen: pygame.Surface, rect: pygame.Rect, colour, force: bool = False):
     if force:
         x, y, w, h = rect.x, rect.y, rect.w, rect.h
         pygame.draw.rect(screen, 0x000000, (x + 2, y + 2, w - 4, h - 4), 4)
         pygame.draw.rect(screen, colour, (x + 4, y + 4, w - 8, h - 8), 2)
 
 
-def fill_rect(screen: pygame.Surface, rect: pygame.Rect, colour) -> None:
+def fill_rect(screen: pygame.Surface, rect: pygame.Rect, colour):
     c = pygame.Color(colour)
     s = pygame.Surface(rect.size)  # the size of your rect
     s.set_alpha(c.a)  # alpha level
@@ -30,11 +39,12 @@ def draw_text(screen: pygame.Surface, rect: pygame.Rect, data: str, colour):
 
 
 class Element:
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         self.tag = tag
         self.children = []
         self.data = ""
 
+        self.rect: pygame.Rect
         self.rect = None
         self.attrs = attrs
 
@@ -55,11 +65,15 @@ class Element:
         else:
             self.on_click = None
 
-    def add_child(self, elem) -> None:
+    def add_child(self, elem):
         self.children.append(elem)
 
     # Overridable
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        self.rect = rect
+
+    # Overridable
+    def draw(self, screen: pygame.Surface):
         pass
 
     # Overridable
@@ -67,8 +81,8 @@ class Element:
         return pygame.Rect(0, 0, 0., 0.)
 
     # DEBUGGING
-    def tree_print(self, level: int = 0) -> None:
-        def indent(lvl: int) -> None:
+    def tree_print(self, level: int = 0):
+        def indent(lvl: int):
             print('    ' * lvl, end='')
 
         indent(level)
@@ -89,7 +103,7 @@ class Element:
 
 
 class Container(Element):
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
 
         if "align" in self.attrs:
@@ -223,7 +237,7 @@ class Container(Element):
 
 
 class Space(Element):
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
         if "color" in self.attrs:
             v = self.attrs["color"]
@@ -243,12 +257,16 @@ class Space(Element):
     def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
 
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        fill_rect(screen, rect, self.colour)
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
+
+    def draw(self, screen: pygame.Surface):
+        fill_rect(screen, self.rect, self.colour)
 
 
 class Image(Element):
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
 
         if "source" in self.attrs:
@@ -271,7 +289,8 @@ class Image(Element):
         else:
             self.height = None
 
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
         if rect.w / rect.h > self.width / self.height:
             w = self.width * rect.h / self.height
             if self.align == "left":
@@ -288,20 +307,27 @@ class Image(Element):
                 r = pygame.Rect(rect.x, rect.y + rect.h - h, rect.w, h)
             else:
                 r = pygame.Rect(rect.x, rect.y + (rect.h - h) / 2, rect.w, h)
-        draw_box(screen, rect, 0x0000FF)
-        fill_rect(screen, r, 0x0000007F)
-        draw_box(screen, r, 0xFFFFFF, True)
-        draw_text(screen, r, self.source, 0xFFFFFFFF)
+        self.rect = r
+
+    def draw(self, screen: pygame.Surface):
+        # draw_box(screen, self.rect, 0x0000FF)
+        fill_rect(screen, self.rect, 0x0000007F)
+        draw_box(screen, self.rect, 0xFFFFFF, True)
+        draw_text(screen, self.rect, self.source, 0xFFFFFFFF)
 
     def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
 
 
 class Button(Element):
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        fill_rect(screen, rect, 0x7F007FFF)
-        draw_box(screen, rect, 0xFF00FF, True)
-        draw_text(screen, rect, self.data, 0xFFFFFFFF)
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
+
+    def draw(self, screen: pygame.Surface):
+        fill_rect(screen, self.rect, 0x7F007FFF)
+        draw_box(screen, self.rect, 0xFF00FF, True)
+        draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
 
     def get_min(self) -> pygame.Rect:
         font_size = _font.size(self.data)
@@ -309,7 +335,7 @@ class Button(Element):
 
 
 class Horizontal(Container):
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
         # Generalise horizontal-specific values to container-compatible ones
         if self.align == "left":
@@ -317,12 +343,16 @@ class Horizontal(Container):
         if self.align == "right":
             self.align = "after"
 
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        fill_rect(screen, rect, self.colour)
-        draw_box(screen, rect, 0xFF0000)
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
         items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
         for along_t, c in items:
-            c.draw(screen, pygame.Rect(*along_t))
+            c.calc_draw(pygame.Rect(*along_t), document)
+
+    def draw(self, screen: pygame.Surface):
+        fill_rect(screen, self.rect, self.colour)
+        draw_box(screen, self.rect, 0xFF0000)
 
     def get_min(self) -> pygame.Rect:
         along_t = self.calc_min(lambda r: (r.x, r.y, r.w, r.h))
@@ -330,7 +360,7 @@ class Horizontal(Container):
 
 
 class Vertical(Container):
-    def __init__(self, document: "DocumentXML", tag: str, attrs: dict) -> None:
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
         # Generalise vertical-specific values to container-compatible ones
         if self.align == "up":
@@ -338,12 +368,16 @@ class Vertical(Container):
         if self.align == "down":
             self.align = "after"
 
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
-        fill_rect(screen, rect, self.colour)
-        draw_box(screen, rect, 0x00FF00)
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
         items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
         for along_t, c in items:
-            c.draw(screen, pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]))
+            c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+
+    def draw(self, screen: pygame.Surface):
+        fill_rect(screen, self.rect, self.colour)
+        draw_box(screen, self.rect, 0x00FF00)
 
     def get_min(self) -> pygame.Rect:
         along_t = self.calc_min(lambda r: (r.y, r.x, r.h, r.w))
@@ -351,10 +385,14 @@ class Vertical(Container):
 
 
 class Overlap(Element):
-    def draw(self, screen: pygame.Surface, rect: pygame.Rect) -> None:
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
         for c in self.children:
-            c.draw(screen, rect)
-        draw_box(screen, rect, 0xFFFF00)
+            c.calc_draw(rect, document)
+
+    def draw(self, screen: pygame.Surface):
+        draw_box(screen, self.rect, 0xFFFF00)
 
     def get_min(self) -> pygame.Rect:
         w, h = 0, 0
@@ -371,20 +409,42 @@ class DocumentXML:
         self.ids = dict()
         self.on_click = list()
         self.on_hover = list()
+        self.drawables = list()
         self.callbacks = None
 
-    def set_callbacks(self, callbacks: dict) -> None:
+    def set_callbacks(self, callbacks: dict):
         self.callbacks = callbacks
 
-    def set_root(self, root: Element) -> None:
+    def set_root(self, root: Element):
         self.root = root
 
-    def call_event(self, event: str) -> None:
+    def call_event(self, event: str):
         self.callbacks[event]()
+
+    def add_drawable(self, elem: Element):
+        self.drawables.append(elem)
+
+    def calc_draw(self, rect: pygame.Rect):
+        self.root: Element
+        self.drawables.clear()
+        self.root.calc_draw(rect, self)
+
+    def draw(self, screen: pygame.Surface):
+        for d in self.drawables:
+            d: Element
+            d.draw(screen)
+
+    def trace_element(self, pos: tuple):
+        # Find element that collides with a certain pos (x, y) (useful for mouse clicks)
+        for elem in reversed(self.drawables):
+            elem: Element
+            if elem.rect.collidepoint(pos):
+                return elem
+        return None
 
 
 class LoaderXML(html.parser.HTMLParser):
-    def __init__(self, filename: str) -> None:
+    def __init__(self, filename: str):
         super().__init__()
         self.filename = filename
         self.document = DocumentXML()
@@ -440,18 +500,18 @@ class LoaderXML(html.parser.HTMLParser):
                     self.error(f"Closing tags do not match ({elem.tag} != {args.tag})")
                 return
 
-    def error(self, message: str) -> None:
+    def error(self, message: str):
         ln, cl = self.getpos()
         txt_line = self.text.split('\n')[ln - 1]
         raise SyntaxError(message, (self.filename, ln, cl, txt_line))
 
     # Handler argument passing helper classes
     class HandlerArgs:
-        def __init__(self, call: str) -> None:
+        def __init__(self, call: str):
             self.call = call
 
     class StartTag(HandlerArgs):
-        def __init__(self, tag: str, attrs: list) -> None:
+        def __init__(self, tag: str, attrs: list):
             super().__init__("start")
             self.tag = tag
             self.attrs = dict()
@@ -464,7 +524,7 @@ class LoaderXML(html.parser.HTMLParser):
             return f"StartTag({self.tag}, {self.attrs})"
 
     class EndTag(HandlerArgs):
-        def __init__(self, tag: str) -> None:
+        def __init__(self, tag: str):
             super().__init__("end")
             self.tag = tag
 
@@ -472,7 +532,7 @@ class LoaderXML(html.parser.HTMLParser):
             return f"EndTag({self.tag})"
 
     class TagData(HandlerArgs):
-        def __init__(self, data: str) -> None:
+        def __init__(self, data: str):
             super().__init__("data")
             self.data = data
 
@@ -480,16 +540,16 @@ class LoaderXML(html.parser.HTMLParser):
             return f"TagData({self.data})"
 
     # Handlers
-    def handle_starttag(self, tag: str, attrs: list) -> None:
+    def handle_starttag(self, tag: str, attrs: list):
         self.gen.send(LoaderXML.StartTag(tag, attrs))
 
-    def handle_endtag(self, tag: str) -> None:
+    def handle_endtag(self, tag: str):
         self.gen.send(LoaderXML.EndTag(tag))
 
-    def handle_startendtag(self, tag: str, attrs: list) -> None:
+    def handle_startendtag(self, tag: str, attrs: list):
         self.handle_starttag(tag, attrs)
 
-    def handle_data(self, data: str) -> None:
+    def handle_data(self, data: str):
         text = data.strip()
         if text != "":
             self.gen.send(LoaderXML.TagData(text))
