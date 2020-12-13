@@ -32,8 +32,7 @@ def main():
         "exit": title_quit,
     })
     ui.calc_draw(screen.get_clip())
-    print(ui.drawables)
-    ui.root.tree_print()
+    # ui.root.tree_print()
 
     while True:
         ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
@@ -44,15 +43,15 @@ def main():
                 ui.calc_draw(screen.get_clip())
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 if e.button == 1:
-                    if ui.hover_element.on_click:
+                    if ui.hover_element and ui.hover_element.on_click:
                         ui.call_event(ui.hover_element.on_click)
 
-        pygame.display.update()
         screen.fill((0, 0, 0, 0))
         ui.draw(screen)
+        pygame.display.update()
 
         # Limit framerate so as to not heat up CPU unnecessarily
-        clk.tick(20)
+        clk.tick(30)
 
 
 if __name__ == "__main__":
