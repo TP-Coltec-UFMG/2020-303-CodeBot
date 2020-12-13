@@ -577,7 +577,7 @@ class LoaderXML(html.parser.HTMLParser):
 
 if __name__ == '__main__':
     # init()
-    doc = LoaderXML("res/test.xml").get_document()
+    doc = LoaderXML("res/title_screen.xml").get_document()
     doc.root.tree_print()
     print(doc.on_click)
     print(doc.ids)

@@ -23,7 +23,7 @@ def main():
     pygame.init()
     gui.init()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-    ui = gui.LoaderXML("res/test.xml").get_document()
+    ui = gui.LoaderXML("res/title_screen.xml").get_document()
 
     ui.set_callbacks({
         "start": title_start,
