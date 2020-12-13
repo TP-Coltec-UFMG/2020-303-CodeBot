@@ -36,6 +36,7 @@ def main():
     ui.root.tree_print()
 
     while True:
+        ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return
@@ -43,10 +44,8 @@ def main():
                 ui.calc_draw(screen.get_clip())
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 if e.button == 1:
-                    elem = ui.trace_element(e.pos)
-                    elem: gui.Element
-                    if elem.on_click:
-                        ui.call_event(elem.on_click)
+                    if ui.hover_element.on_click:
+                        ui.call_event(ui.hover_element.on_click)
 
         pygame.display.update()
         screen.fill((0, 0, 0, 0))

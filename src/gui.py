@@ -19,7 +19,7 @@ def init():
 
 
 def draw_box(screen: pygame.Surface, rect: pygame.Rect, colour, force: bool = False):
-    if force:
+    if force and False:
         x, y, w, h = rect.x, rect.y, rect.w, rect.h
         pygame.draw.rect(screen, 0x000000, (x + 2, y + 2, w - 4, h - 4), 4)
         pygame.draw.rect(screen, colour, (x + 4, y + 4, w - 8, h - 8), 2)
@@ -73,7 +73,7 @@ class Element:
         self.rect = rect
 
     # Overridable
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         pass
 
     # Overridable
@@ -261,7 +261,7 @@ class Space(Element):
         document.add_drawable(self)
         self.rect = rect
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         fill_rect(screen, self.rect, self.colour)
 
 
@@ -309,7 +309,7 @@ class Image(Element):
                 r = pygame.Rect(rect.x, rect.y + (rect.h - h) / 2, rect.w, h)
         self.rect = r
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         # draw_box(screen, self.rect, 0x0000FF)
         fill_rect(screen, self.rect, 0x0000007F)
         draw_box(screen, self.rect, 0xFFFFFF, True)
@@ -324,8 +324,11 @@ class Button(Element):
         document.add_drawable(self)
         self.rect = rect
 
-    def draw(self, screen: pygame.Surface):
-        fill_rect(screen, self.rect, 0x7F007FFF)
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self == document.hover_element:
+            fill_rect(screen, self.rect, 0xFF00FFFF)
+        else:
+            fill_rect(screen, self.rect, 0x7F007FFF)
         draw_box(screen, self.rect, 0xFF00FF, True)
         draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
 
@@ -350,7 +353,7 @@ class Horizontal(Container):
         for along_t, c in items:
             c.calc_draw(pygame.Rect(*along_t), document)
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0xFF0000)
 
@@ -375,7 +378,7 @@ class Vertical(Container):
         for along_t, c in items:
             c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0x00FF00)
 
@@ -391,7 +394,7 @@ class Overlap(Element):
         for c in self.children:
             c.calc_draw(rect, document)
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         draw_box(screen, self.rect, 0xFFFF00)
 
     def get_min(self) -> pygame.Rect:
@@ -411,6 +414,7 @@ class DocumentXML:
         self.on_hover = list()
         self.drawables = list()
         self.callbacks = None
+        self.hover_element = None
 
     def set_callbacks(self, callbacks: dict):
         self.callbacks = callbacks
@@ -432,7 +436,7 @@ class DocumentXML:
     def draw(self, screen: pygame.Surface):
         for d in self.drawables:
             d: Element
-            d.draw(screen)
+            d.draw(screen, self)
 
     def trace_element(self, pos: tuple):
         # Find element that collides with a certain pos (x, y) (useful for mouse clicks)
