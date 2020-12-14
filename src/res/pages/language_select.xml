@@ -3,7 +3,7 @@
     <vertical>
         <text colour="#FFFFFFFF" length="min">lang.title</text>
         <vertical id="lang_list" colour="#0000007F" align="up">
-            <button id="en-gb" length="min" margin="10px" on_click="select">English (UK)</button>
+<!--            Languages are dinamically added here...-->
         </vertical>
         <button length="min" margin="10px" on_click="back">lang.back</button>
     </vertical>
