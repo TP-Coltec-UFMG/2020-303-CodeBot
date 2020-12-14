@@ -2,36 +2,79 @@ import pygame
 import gui
 
 
+def change_document(name):
+    global current_ui
+    global ui
+    if name in uis:
+        current_ui = name
+        ui = uis[current_ui]
+        ui.calc_draw(screen.get_clip())
+    else:
+        print("404 page not found.")
+
+
+# Callbacks:
 def title_start():
     print("Game start!")
+    change_document("levels")
 
 
 def title_options():
     print("Options screen!")
+    # main.current_ui = "options"
 
 
 def title_lang():
     print("Language select!")
+    change_document("language")
 
 
 def title_quit():
     print("Exit!")
+    pygame.event.post(pygame.event.Event(pygame.QUIT))
 
 
-def main():
-    clk = pygame.time.Clock()
-    pygame.init()
-    gui.init()
-    screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-    ui = gui.LoaderXML("res/title_screen.xml").get_document()
+def level_select1():
+    print("Level 1!")
+    change_document("level1")
 
-    ui.set_callbacks({
+
+def level_back_title():
+    print("Back to title screen!")
+    change_document("title")
+
+
+uis = {
+    "title": gui.LoaderXML("res/title_screen.xml").get_document(),
+    "levels": gui.LoaderXML("res/level_select.xml").get_document(),
+}
+ui_callbacks = {
+    "title": {
         "start": title_start,
         "options": title_options,
         "lang": title_lang,
         "exit": title_quit,
-    })
-    ui.calc_draw(screen.get_clip())
+    },
+    "levels": {
+        "back": level_back_title,
+        "level1": level_select1,
+    },
+}
+current_ui = "title"
+ui = uis[current_ui]
+for k in ui_callbacks:
+    uis[k].set_callbacks(ui_callbacks[k])
+
+pygame.init()
+gui.init()
+screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+
+
+def main():
+    clk = pygame.time.Clock()
+
+    change_document("title")
+    # ui.calc_draw(screen.get_clip())
     # ui.root.tree_print()
 
     while True:

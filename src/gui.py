@@ -65,11 +65,27 @@ class Element:
         else:
             self.on_click = None
 
+        if "color" in self.attrs:
+            v = self.attrs["color"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        elif "colour" in self.attrs:
+            v = self.attrs["colour"]
+            if v.startswith("#"):
+                self.colour = int(v[1:], 16)
+            else:
+                self.colour = 0x00FFFFFF
+        else:
+            self.colour = 0x00000000
+
     def add_child(self, elem):
         self.children.append(elem)
 
     # Overridable
     def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
         self.rect = rect
 
     # Overridable
@@ -110,21 +126,6 @@ class Container(Element):
             self.align = self.attrs["align"]
         else:
             self.align = "justify"
-
-        if "color" in self.attrs:
-            v = self.attrs["color"]
-            if v.startswith("#"):
-                self.colour = int(v[1:], 16)
-            else:
-                self.colour = 0x00FFFFFF
-        elif "colour" in self.attrs:
-            v = self.attrs["colour"]
-            if v.startswith("#"):
-                self.colour = int(v[1:], 16)
-            else:
-                self.colour = 0x00FFFFFF
-        else:
-            self.colour = 0x00000000
 
     def distribute(self, lengths: list, space: float, along_t: tuple) -> list:
         ret = []
@@ -239,27 +240,9 @@ class Container(Element):
 class Space(Element):
     def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
-        if "color" in self.attrs:
-            v = self.attrs["color"]
-            if v.startswith("#"):
-                self.colour = int(v[1:], 16)
-            else:
-                self.colour = 0x00FFFFFF
-        elif "colour" in self.attrs:
-            v = self.attrs["colour"]
-            if v.startswith("#"):
-                self.colour = int(v[1:], 16)
-            else:
-                self.colour = 0x00FFFFFF
-        else:
-            self.colour = 0x00000000
 
     def get_min(self) -> pygame.Rect:
         return pygame.Rect(0, 0, 0, 0)
-
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
-        document.add_drawable(self)
-        self.rect = rect
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         fill_rect(screen, self.rect, self.colour)
@@ -320,10 +303,6 @@ class Image(Element):
 
 
 class Button(Element):
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
-        document.add_drawable(self)
-        self.rect = rect
-
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         if self == document.hover_element:
             fill_rect(screen, self.rect, 0xFF00FFFF)
@@ -331,6 +310,16 @@ class Button(Element):
             fill_rect(screen, self.rect, 0x7F007FFF)
         draw_box(screen, self.rect, 0xFF00FF, True)
         draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
+
+    def get_min(self) -> pygame.Rect:
+        font_size = _font.size(self.data)
+        return pygame.Rect(0, 0, font_size[0] + 20, font_size[1] + 20)
+
+
+class Text(Element):
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        # draw_box(screen, self.rect, 0xFF00FF, True)
+        draw_text(screen, self.rect, self.data, self.colour)
 
     def get_min(self) -> pygame.Rect:
         font_size = _font.size(self.data)
@@ -565,13 +554,13 @@ class LoaderXML(html.parser.HTMLParser):
         "lengthwise": None,
         "crosswise": None,
         "overlap": Overlap,
-        "button": Button
+        "text": Text,
+        "button": Button,
     }
 
     elements: dict = {
         "image": Image,
-        "text": Element,
-        "space": Space
+        "space": Space,
     }
 
 
