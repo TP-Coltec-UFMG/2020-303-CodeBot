@@ -46,8 +46,8 @@ def level_back_title():
 
 
 uis = {
-    "title": gui.LoaderXML("res/title_screen.xml").get_document(),
-    "levels": gui.LoaderXML("res/level_select.xml").get_document(),
+    "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
+    "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
 }
 ui_callbacks = {
     "title": {
@@ -69,7 +69,7 @@ for k in ui_callbacks:
 pygame.init()
 gui.init()
 languages.init()
-languages.load("lang/pt-br.yaml")
+languages.load("res/lang/pt-br.yaml")
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
 

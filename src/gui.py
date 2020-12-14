@@ -7,7 +7,7 @@ _font: pygame.font.Font
 
 def init():
     global _font
-    _font = pygame.font.Font("res/JetBrainsMono-Regular.ttf", 30)
+    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 30)
 
 
 def debug(func: callable) -> callable:
@@ -614,7 +614,7 @@ class LoaderXML(html.parser.HTMLParser):
 
 if __name__ == '__main__':
     # init()
-    doc = LoaderXML("res/title_screen.xml").get_document()
+    doc = LoaderXML("res/pages/title_screen.xml").get_document()
     doc.root.tree_print()
     print(doc.on_click)
     print(doc.ids)
