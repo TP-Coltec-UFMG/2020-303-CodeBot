@@ -11,9 +11,9 @@ Antes de instalar o jogo, tenha certeza de que a máquina possui:
 - [Pip 3](https://pypi.org/project/pip/), para instalar as dependências do código.
 - [Python 3](https://www.python.org/), para rodar o código.
 
-#### Comandos:
+### Pela linha de comandos:
 
-Linux:
+Linux (bash):
 ```bash
 # Clonar o repositório para a pasta ./codebot/
 $ git clone https://github.com/TP-Coltec-UFMG/codebot
@@ -28,7 +28,7 @@ $ cd codebot/src
 $ python3 main.py
 ```
 
-Windows:
+Windows (powershell):
 ```powershell
 # Clonar o repositório para a pasta ./codebot/
 $ git.exe clone https://github.com/TP-Coltec-UFMG/codebot
