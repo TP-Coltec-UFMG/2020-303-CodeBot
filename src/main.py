@@ -1,5 +1,6 @@
 import pygame
 import gui
+import languages
 
 
 def change_document(name):
@@ -67,6 +68,8 @@ for k in ui_callbacks:
 
 pygame.init()
 gui.init()
+languages.init()
+languages.load("res/pt-br.yaml")
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
 

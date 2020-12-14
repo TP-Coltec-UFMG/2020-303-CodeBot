@@ -1,0 +1,10 @@
+title:
+  start_game: "Start game"
+  options: "Options"
+  languages: "Languages"
+  quit: "Quit to desktop"
+levels:
+  title: "Select a level to play"
+  level1: "Level 1"
+  level2: "Level 2"
+  back: "Back to title"

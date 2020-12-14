@@ -1,29 +1,14 @@
-<horizontal colour="#003F00FF">
+<horizontal colour="#007F3FFF">
     <space length="10%"/>
     <vertical>
-        <vertical align="down" length="10%">
-            <text colour="#FFFFFFFF" length="min">levels.title</text>
-        </vertical>
+        <text colour="#FFFFFFFF" length="min">levels.title</text>
         <vertical colour="#0000007F" align="up">
-            <horizontal length="min">
-                <space length="10px"/>
-                <vertical align="up">
-                    <space length="10px"/>
-                <button length="min" on_click="level1">levels.level1</button>
-                    <space length="10px"/>
-                </vertical>
-                <space length="10px"/>
+            <horizontal margin="5px" length="min">
+                <button length="50%" margin="5px" on_click="level1">levels.level1</button>
+                <button length="50%" margin="5px" on_click="level1">levels.level2</button>
             </horizontal>
         </vertical>
-        <horizontal length="15%">
-            <space length="10px"/>
-            <vertical align="up">
-                <space length="10px"/>
-                <button length="min" on_click="back">levels.back</button>
-                <space length="10px"/>
-            </vertical>
-            <space length="10px"/>
-        </horizontal>
+        <button length="min" margin="10px" on_click="back">levels.back</button>
     </vertical>
     <space length="10%"/>
 </horizontal>

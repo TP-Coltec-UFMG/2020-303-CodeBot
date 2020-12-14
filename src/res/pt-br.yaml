@@ -1,0 +1,10 @@
+title:
+  start_game: "Jogar"
+  options: "Opções"
+  languages: "Idiomas"
+  quit: "Sair"
+levels:
+  title: "Selecione um nível para jogar"
+  level1: "Nível 1"
+  level2: "Nível 2"
+  back: "Voltar ao título"
