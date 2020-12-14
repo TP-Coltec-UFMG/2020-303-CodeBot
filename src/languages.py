@@ -38,6 +38,6 @@ def get_str(string: str, report=False) -> str:
 
 if __name__ == '__main__':
     # init()
-    load("res/pt-br.yaml")
+    load("lang/pt-br.yaml")
     print(strings)
     print(get_str("levels.back"))
