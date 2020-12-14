@@ -23,7 +23,12 @@ def get_name(filename: str):
     with open(filename, encoding='utf-8') as file:
         text = file.read()
         # print(text)
-    lang = yaml.safe_load(text)
+    try:
+        lang = yaml.safe_load(text)
+    except yaml.YAMLError as err:
+        raise ValueError("Error parsing YAML file.") from err
+    if type(lang) is not dict:
+        raise ValueError("Invalid YAML language file.")
     if "lang_name" not in lang:
         raise KeyError("lang_name")
     return lang["lang_name"]

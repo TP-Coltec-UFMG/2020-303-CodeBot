@@ -32,13 +32,22 @@ def title_lang(_: gui.Element):
     lang_list.clear()
     for lang in languages.refresh():
         print(lang)
+        name: str
+        try:
+            name = languages.get_name(lang)
+        except ValueError as err:
+            print("Invalid language file! " + str(err))
+            continue
+        except KeyError as err:
+            print("Invalid language YAML! " + str(err))
+            continue
         button = gui.Button(document, "button", {
             "length": "min",
             "margin": "10px",
             "on_click": "select",
             "id": lang,
         })
-        button.data = languages.get_name(lang)
+        button.data = name
         lang_list.append(button)
     change_document("language")
 
