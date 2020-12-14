@@ -1,3 +1,50 @@
 # CodeBot
 
 Jogo educativo e acessível para auxiliar no aprendizado da programação.
+
+Ele vem equipado com um sistema de escolha de idiomas (para maior acessibilidade), além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco.
+
+## Instalação:
+
+Antes de instalar o jogo, tenha certeza de que a máquina possui:
+- [Git](https://git-scm.com/), para ter acesso ao código fonte do projeto no GitHub.
+- [Pip 3](https://pypi.org/project/pip/), para instalar as dependências do código.
+- [Python 3](https://www.python.org/), para rodar o código.
+
+#### Comandos:
+
+Linux:
+```bash
+# Clonar o repositório para a pasta ./codebot/
+$ git clone https://github.com/TP-Coltec-UFMG/codebot
+
+# Instalar as dependências do projeto
+$ pip3 install --requirement codebot/requirements.txt
+
+# Abrir o diretório de trabalho
+$ cd codebot/src
+
+# Executar o script principal
+$ python3 main.py
+```
+
+Windows:
+```powershell
+# Clonar o repositório para a pasta ./codebot/
+$ git.exe clone https://github.com/TP-Coltec-UFMG/codebot
+
+# Instalar as dependências do projeto
+$ pip.exe install --requirement .\codebot\requirements.txt
+
+# Abrir o diretório de trabalho
+$ cd .\codebot\src
+
+# Executar o script principal
+$ python.exe .\main.py
+```
+
+Tenha certeza de que a versão de Python que está sendo executada é a versão 3.x:
+```powershell
+$ python --version
+# Python 3.8.2
+```
