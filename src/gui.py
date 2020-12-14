@@ -459,8 +459,8 @@ class DocumentXML:
     def set_root(self, root: Element):
         self.root = root
 
-    def call_event(self, event: str):
-        self.callbacks[event]()
+    def call_event(self, elem: Element):
+        self.callbacks[elem.on_click](elem)
 
     def add_drawable(self, elem: Element):
         self.drawables.append(elem)

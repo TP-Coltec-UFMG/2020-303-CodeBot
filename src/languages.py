@@ -1,10 +1,12 @@
 import yaml
+import os
 
 strings = dict()
 
 
-def init():
-    pass
+def refresh() -> iter:
+    for file in os.listdir("res/lang"):
+        yield "./res/lang/" + file
 
 
 def load(filename: str):
@@ -12,8 +14,19 @@ def load(filename: str):
     text: str
     with open(filename, encoding='utf-8') as file:
         text = file.read()
-        print(text)
+        # print(text)
     strings = yaml.safe_load(text)
+
+
+def get_name(filename: str):
+    text: str
+    with open(filename, encoding='utf-8') as file:
+        text = file.read()
+        # print(text)
+    lang = yaml.safe_load(text)
+    if "lang_name" not in lang:
+        raise KeyError("lang_name")
+    return lang["lang_name"]
 
 
 def get_str(string: str, report=False) -> str:
@@ -37,7 +50,6 @@ def get_str(string: str, report=False) -> str:
 
 
 if __name__ == '__main__':
-    # init()
     load("res/lang/pt-br.yaml")
     print(strings)
     print(get_str("levels.back"))

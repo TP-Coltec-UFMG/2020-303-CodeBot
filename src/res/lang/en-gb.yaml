@@ -1,3 +1,4 @@
+lang_name: "English (UK)"
 title:
   start_game: "Start game"
   options: "Options"
@@ -7,4 +8,7 @@ levels:
   title: "Select a level to play"
   level1: "Level 1"
   level2: "Level 2"
+  back: "Back to title"
+lang:
+  title: "Select your language"
   back: "Back to title"

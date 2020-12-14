@@ -1,0 +1,11 @@
+<horizontal colour="#007F3FFF">
+    <space length="10%"/>
+    <vertical>
+        <text colour="#FFFFFFFF" length="min">lang.title</text>
+        <vertical id="lang_list" colour="#0000007F" align="up">
+            <button id="en-gb" length="min" margin="10px" on_click="select">English (UK)</button>
+        </vertical>
+        <button length="min" margin="10px" on_click="back">lang.back</button>
+    </vertical>
+    <space length="10%"/>
+</horizontal>
