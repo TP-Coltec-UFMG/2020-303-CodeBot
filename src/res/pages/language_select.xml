@@ -1,4 +1,4 @@
-<horizontal colour="#007F3FFF">
+<horizontal colour="#003F7FFF">
     <space length="10%"/>
     <vertical>
         <text colour="#FFFFFFFF" length="min">lang.title</text>
