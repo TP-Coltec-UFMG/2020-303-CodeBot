@@ -10,6 +10,7 @@ def change_document(name):
         current_ui = name
         ui = uis[current_ui]
         ui.calc_draw(screen.get_clip())
+        ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
     else:
         print("404 page not found.")
 
@@ -100,7 +101,7 @@ for k in ui_callbacks:
 
 pygame.init()
 gui.init()
-languages.load("res/lang/en-gb.yaml")
+languages.load("res/lang/none.yaml")
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
 
