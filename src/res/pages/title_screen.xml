@@ -3,7 +3,7 @@
         <space length="10%"/>
         <overlap>
             <horizontal>
-                <space length="350px"/>
+                <space length="300px"/>
             </horizontal>
             <vertical align="down">
                 <image length="80%" smooth="true" align="down">res/textures/title2.png</image>
@@ -15,13 +15,9 @@
     <horizontal align="centre">
         <space length="30%"/>
         <vertical align="up">
-            <button length="min" on_click="start">title.start_game</button>
-            <space length="10px"/>
-            <button length="min" on_click="options">title.options</button>
-            <space length="10px"/>
-            <button length="min" on_click="lang">title.languages</button>
-            <space length="10px"/>
-            <button length="min" on_click="exit">title.quit</button>
+            <button length="min" margin="5px" on_click="start">title.start_game</button>
+            <button length="min" margin="5px" on_click="lang">title.languages</button>
+            <button length="min" margin="5px" on_click="exit">title.quit</button>
         </vertical>
         <space length="30%"/>
     </horizontal>
