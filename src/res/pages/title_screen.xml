@@ -6,7 +6,7 @@
                 <space length="350px"/>
             </horizontal>
             <vertical align="down">
-                <image length="80%" w="400" h="100" align="down" source="title.png"/>
+                <image length="80%" align="down">res/textures/title.png</image>
             </vertical>
         </overlap>
         <space length="10%"/>

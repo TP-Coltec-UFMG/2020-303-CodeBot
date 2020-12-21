@@ -1,5 +1,6 @@
 import html.parser
 import pygame
+from pygame.image import load_extended
 import languages
 
 _font: pygame.font.Font
@@ -293,32 +294,22 @@ class Space(Element):
 class Image(Element):
     def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
-
-        if "source" in self.attrs:
-            self.source = self.attrs["source"]
-        else:
-            self.source = None
+        self.image = None
+        self.image_scaled = None
 
         if "align" in self.attrs:
             self.align = self.attrs["align"]
         else:
             self.align = None
 
-        if "w" in self.attrs:
-            self.width = float(self.attrs["w"])
-        else:
-            self.width = None
-
-        if "h" in self.attrs:
-            self.height = float(self.attrs["h"])
-        else:
-            self.height = None
-
     @draw_margin
     def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
         document.add_drawable(self)
-        if rect.w / rect.h > self.width / self.height:
-            w = self.width * rect.h / self.height
+        if not self.image:
+            self.image = load_extended(str(self.data))
+        img_width, img_height = self.image.get_size()
+        if rect.w / rect.h > img_width / img_height:
+            w = img_width * rect.h / img_height
             if self.align == "left":
                 r = pygame.Rect(rect.x, rect.y, w, rect.h)
             elif self.align == "right":
@@ -326,20 +317,22 @@ class Image(Element):
             else:
                 r = pygame.Rect(rect.x + (rect.w - w) / 2, rect.y, w, rect.h)
         else:
-            h = self.height * rect.w / self.width
+            h = img_height * rect.w / img_width
             if self.align == "up":
                 r = pygame.Rect(rect.x, rect.y, rect.w, h)
             elif self.align == "down":
                 r = pygame.Rect(rect.x, rect.y + rect.h - h, rect.w, h)
             else:
                 r = pygame.Rect(rect.x, rect.y + (rect.h - h) / 2, rect.w, h)
+        self.image_scaled = pygame.transform.scale(self.image, (r.w, r.h))
         self.rect = r
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
         # draw_box(screen, self.rect, 0x0000FF)
-        fill_rect(screen, self.rect, 0x0000007F)
+        # fill_rect(screen, self.rect, 0x0000007F)
         draw_box(screen, self.rect, 0xFFFFFF, True)
-        draw_text(screen, self.rect, self.source, 0xFFFFFFFF)
+        screen.blit(self.image_scaled, self.rect)
+        # draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
 
 
 class Button(Element):
@@ -604,10 +597,10 @@ class LoaderXML(html.parser.HTMLParser):
         "overlap": Overlap,
         "text": Text,
         "button": Button,
+        "image": Image,
     }
 
     elements: dict = {
-        "image": Image,
         "space": Space,
     }
 

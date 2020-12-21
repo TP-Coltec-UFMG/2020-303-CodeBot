@@ -1,4 +1,5 @@
 import pygame
+from pygame.image import load_extended
 import gui
 import languages
 
