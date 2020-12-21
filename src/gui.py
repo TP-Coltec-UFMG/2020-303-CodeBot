@@ -302,6 +302,11 @@ class Image(Element):
         else:
             self.align = None
 
+        if "smooth" in self.attrs:
+            self.smooth = True
+        else:
+            self.smooth = False
+
     @draw_margin
     def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
         document.add_drawable(self)
@@ -324,7 +329,10 @@ class Image(Element):
                 r = pygame.Rect(rect.x, rect.y + rect.h - h, rect.w, h)
             else:
                 r = pygame.Rect(rect.x, rect.y + (rect.h - h) / 2, rect.w, h)
-        self.image_scaled = pygame.transform.scale(self.image, (r.w, r.h))
+        if self.smooth:
+            self.image_scaled = pygame.transform.smoothscale(self.image, (r.w, r.h))
+        else:
+            self.image_scaled = pygame.transform.scale(self.image, (r.w, r.h))
         self.rect = r
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
