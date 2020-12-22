@@ -8,7 +8,7 @@ _font: pygame.font.Font
 
 def init():
     global _font
-    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 30)
+    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 20)
 
 
 def debug(func: callable) -> callable:
@@ -297,6 +297,13 @@ class Image(Element):
         self.image = None
         self.image_scaled = None
 
+        if "hover_colour" in self.attrs:
+            self.hover_colour = self.attrs["hover_colour"]
+        elif "hover_color" in self.attrs:
+            self.hover_colour = self.attrs["hover_color"]
+        else:
+            self.hover_colour = None
+
         if "align" in self.attrs:
             self.align = self.attrs["align"]
         else:
@@ -340,6 +347,9 @@ class Image(Element):
         # fill_rect(screen, self.rect, 0x0000007F)
         draw_box(screen, self.rect, 0xFFFFFF, True)
         screen.blit(self.image_scaled, self.rect)
+        if self.hover_colour:
+            if self == document.hover_element:
+                fill_rect(screen, self.rect, self.hover_colour)
         # draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
 
 

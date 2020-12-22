@@ -7,7 +7,6 @@ import languages
 def change_document(name):
     global current_ui
     global ui
-    print("aaaa.")
     if name in uis:
         current_ui = name
         ui = uis[current_ui]

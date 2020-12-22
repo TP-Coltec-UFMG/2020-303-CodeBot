@@ -1,8 +1,16 @@
 <vertical colour="#003F7FFF">
     <horizontal>
         <vertical length="40%" colour="#0000003F">
-            <horizontal length="min" colour="#0000003F">
-                <button length="min" margin="5px" on_click="back">level.back</button>
+            <horizontal length="10%" colour="#0000003F">
+<!--                <button length="min" margin="5px" on_click="back">level.back</button>-->
+                <image
+                        align="left"
+                        smooth="True"
+                        margin="5px"
+                        on_click="back"
+                        hover_colour="#FFFFFF1F">
+                    res/textures/go_back.png
+                </image>
             </horizontal>
         </vertical>
         <space colour="#FF00FFFF"/>
