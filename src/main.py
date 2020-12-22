@@ -1,5 +1,5 @@
 import pygame
-from pygame.image import load_extended
+# from pygame.image import load_extended
 import gui
 import languages
 
@@ -7,6 +7,7 @@ import languages
 def change_document(name):
     global current_ui
     global ui
+    print("aaaa.")
     if name in uis:
         current_ui = name
         ui = uis[current_ui]
@@ -61,12 +62,14 @@ def title_quit(_: gui.Element):
 
 def level_select(elem: gui.Element):
     print(elem.id)
-    change_document(elem.id)
+    change_document("level")
 
 
 def lang_select(elem: gui.Element):
     print(elem.id)
     languages.load(elem.id)
+    ui.calc_draw(screen.get_clip())
+    ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
 
 
 def back_title(_: gui.Element):
@@ -78,6 +81,7 @@ uis = {
     "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
     "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
     "language": gui.LoaderXML("res/pages/language_select.xml").get_document(),
+    "level": gui.LoaderXML("res/pages/level_layout.xml").get_document(),
 }
 ui_callbacks = {
     "title": {
@@ -93,25 +97,25 @@ ui_callbacks = {
     "language": {
         "back": back_title,
         "select": lang_select
-    }
+    },
+    "level": {
+        "back": title_start,
+    },
 }
-current_ui = "title"
-ui = uis[current_ui]
 for k in ui_callbacks:
     uis[k].set_callbacks(ui_callbacks[k])
+current_ui = "title"
+ui = uis[current_ui]
 
 pygame.init()
-gui.init()
-languages.load("res/lang/none.yaml")
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
 
 def main():
     clk = pygame.time.Clock()
-
+    gui.init()
+    languages.load("res/lang/none.yaml")
     change_document("title")
-    # ui.calc_draw(screen.get_clip())
-    # ui.root.tree_print()
 
     while True:
         ui.hover_element = ui.trace_element(pygame.mouse.get_pos())

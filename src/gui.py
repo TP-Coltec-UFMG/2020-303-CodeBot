@@ -345,16 +345,22 @@ class Image(Element):
 
 class Button(Element):
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        if self == document.hover_element:
-            fill_rect(screen, self.rect, 0xFFFFFF7F)
+        if self.colour:
+            if self == document.hover_element:
+                fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x000000FF)
+            else:
+                fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x0000007F)
         else:
-            fill_rect(screen, self.rect, 0x0000007F)
+            if self == document.hover_element:
+                fill_rect(screen, self.rect, 0xFFFFFF7F)
+            else:
+                fill_rect(screen, self.rect, 0x0000007F)
         draw_box(screen, self.rect, 0x000000FF, True)
         draw_text(screen, self.rect, languages.get_str(self.data), 0xFFFFFFFF)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
-        font_size = _font.size(self.data)
+        font_size = _font.size(languages.get_str(self.data))
         return pygame.Rect(0, 0, font_size[0] + 20, font_size[1] + 20)
 
 
@@ -365,7 +371,7 @@ class Text(Element):
 
     @add_margin
     def get_min(self) -> pygame.Rect:
-        font_size = _font.size(self.data)
+        font_size = _font.size(languages.get_str(self.data))
         return pygame.Rect(0, 0, font_size[0] + 20, font_size[1] + 20)
 
 
@@ -420,7 +426,63 @@ class Vertical(Container):
     @add_margin
     def get_min(self) -> pygame.Rect:
         along_t = self.calc_min(lambda r: (r.y, r.x, r.h, r.w))
-        return pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2])
+        return pygame.Rect(0, 0, along_t[3], along_t[2])
+
+
+class Lengthwise(Container):
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
+        super().__init__(document, tag, attrs)
+
+    @draw_margin
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
+        if rect.w > rect.h:
+            items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
+            for along_t, c in items:
+                c.calc_draw(pygame.Rect(*along_t), document)
+        else:
+            items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
+            for along_t, c in items:
+                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        fill_rect(screen, self.rect, self.colour)
+        draw_box(screen, self.rect, 0x00FF00)
+
+    @add_margin
+    def get_min(self) -> pygame.Rect:
+        along_t = self.calc_min(lambda r: (r.x, r.y, r.w, r.h))
+        greater = max(along_t[3], along_t[2])
+        return pygame.Rect(0, 0, greater)
+
+
+class Crosswise(Container):
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
+        super().__init__(document, tag, attrs)
+
+    @draw_margin
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+        document.add_drawable(self)
+        self.rect = rect
+        if rect.w > rect.h:
+            items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
+            for along_t, c in items:
+                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+        else:
+            items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
+            for along_t, c in items:
+                c.calc_draw(pygame.Rect(*along_t), document)
+
+    def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        fill_rect(screen, self.rect, self.colour)
+        draw_box(screen, self.rect, 0x00FF00)
+
+    @add_margin
+    def get_min(self) -> pygame.Rect:
+        along_t = self.calc_min(lambda r: (r.y, r.x, r.h, r.w))
+        greater = max(along_t[3], along_t[2])
+        return pygame.Rect(0, 0, greater)
 
 
 class Overlap(Element):
@@ -600,8 +662,8 @@ class LoaderXML(html.parser.HTMLParser):
     tags: dict = {
         "horizontal": Horizontal,
         "vertical": Vertical,
-        "lengthwise": None,
-        "crosswise": None,
+        "lengthwise": Lengthwise,
+        "crosswise": Crosswise,
         "overlap": Overlap,
         "text": Text,
         "button": Button,

@@ -2,11 +2,9 @@
     <space length="10%"/>
     <vertical>
         <text colour="#FFFFFFFF" length="min">levels.title</text>
-        <vertical colour="#0000007F" align="up">
-            <horizontal margin="5px" length="min">
-                <button id="level1" length="50%" margin="5px" on_click="level">levels.level1</button>
-                <button id="level2" length="50%" margin="5px" on_click="level">levels.level2</button>
-            </horizontal>
+        <vertical id="level_list" colour="#0000007F" align="up">
+            <button id="level1" length="min" margin="5px" on_click="level">levels.level1</button>
+<!--            <button id="level2" length="min" margin="5px" on_click="level">levels.level2</button>-->
         </vertical>
         <button length="min" margin="10px" on_click="back">levels.back</button>
     </vertical>

@@ -1,0 +1,15 @@
+<vertical colour="#003F7FFF">
+    <horizontal>
+        <vertical length="40%" colour="#0000003F">
+            <horizontal length="min" colour="#0000003F">
+                <button length="min" margin="5px" on_click="back">level.back</button>
+            </horizontal>
+        </vertical>
+        <space colour="#FF00FFFF"/>
+    </horizontal>
+    <horizontal length="min" colour="#0000007F">
+        <button length="min" margin="10px" colour="#FF7F00FF">level.blocks.while</button>
+        <button length="min" margin="10px" colour="#FFFF00FF">level.blocks.if</button>
+        <button length="min" margin="10px" colour="#00FF00FF">level.blocks.forward</button>
+    </horizontal>
+</vertical>

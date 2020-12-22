@@ -11,3 +11,9 @@ levels:
 lang:
   title: "Select your language"
   back: "Back to title"
+level:
+  back: "Exit"
+  blocks:
+    while: "while"
+    if: "if"
+    forward: "move()"
