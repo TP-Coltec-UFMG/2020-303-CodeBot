@@ -11,3 +11,9 @@ levels:
 lang:
   title: "Selecione seu idioma"
   back: "Voltar ao título"
+level:
+  back: "Sair"
+  blocks:
+    forward: "andar()"
+    left: "esquerda()"
+    right: "direita()"

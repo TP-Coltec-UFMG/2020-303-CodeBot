@@ -13,11 +13,11 @@
                 </image>
             </horizontal>
         </vertical>
-        <space colour="#FF00FFFF"/>
+<!--        <space colour="#FF00FFFF"/>-->
     </horizontal>
-    <horizontal length="min" colour="#0000007F">
-        <button length="min" margin="10px" colour="#FF7F00FF">level.blocks.while</button>
-        <button length="min" margin="10px" colour="#FFFF00FF">level.blocks.if</button>
+    <horizontal length="min" colour="#0000007F" align="distribute">
         <button length="min" margin="10px" colour="#00FF00FF">level.blocks.forward</button>
+        <button length="min" margin="10px" colour="#FFFF00FF">level.blocks.left</button>
+        <button length="min" margin="10px" colour="#FF7F00FF">level.blocks.right</button>
     </horizontal>
 </vertical>

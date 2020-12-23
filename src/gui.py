@@ -194,6 +194,16 @@ class Container(Element):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
                 axis_l += lengths[i]
+        elif self.align == "distribute":
+            gap = space / (len(self.children) + 1)
+            axis_l = start_l + gap
+            for i, c in enumerate(self.children):
+                sub_rect = (axis_l, start_c, lengths[i], across)
+                ret.append((sub_rect, c))
+                if space < 0:
+                    axis_l += lengths[i]
+                elif len(self.children) > 1:
+                    axis_l += lengths[i] + gap
         elif self.align == "justify" or self.align == "proportional":
             axis_l = start_l
             for i, c in enumerate(self.children):

@@ -14,6 +14,6 @@ lang:
 level:
   back: "Exit"
   blocks:
-    while: "while"
-    if: "if"
     forward: "move()"
+    left: "left()"
+    right: "right()"
