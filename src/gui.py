@@ -566,6 +566,14 @@ class DocumentXML:
                 return elem
         return None
 
+    def handle_event(self, screen: pygame.Surface, event: pygame.event.Event):
+        if event.type == pygame.VIDEORESIZE:
+            self.calc_draw(screen.get_clip())
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if self.hover_element and self.hover_element.on_click:
+                    self.call_event(self.hover_element)
+
 
 class LoaderXML(html.parser.HTMLParser):
     def __init__(self, filename: str):
@@ -693,11 +701,3 @@ class LoaderXML(html.parser.HTMLParser):
     elements: dict = {
         "space": Space,
     }
-
-
-if __name__ == '__main__':
-    # init()
-    doc = LoaderXML("res/pages/title_screen.xml").get_document()
-    doc.root.tree_print()
-    print(doc.on_click)
-    print(doc.ids)

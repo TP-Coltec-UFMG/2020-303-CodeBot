@@ -8,7 +8,7 @@
                         smooth="True"
                         margin="5px"
                         on_click="back"
-                        hover_colour="#FFFFFF1F">
+                        hover_colour="#FFFFFF3F">
                     res/textures/go_back.png
                 </image>
             </horizontal>

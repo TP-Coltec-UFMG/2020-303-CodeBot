@@ -1,5 +1,5 @@
 import pygame
-# from pygame.image import load_extended
+import ticks
 import gui
 import languages
 
@@ -117,18 +117,14 @@ def main():
     change_document("title")
 
     while True:
+        ticks.update()
         ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return
-            elif e.type == pygame.VIDEORESIZE:
-                ui.calc_draw(screen.get_clip())
-            elif e.type == pygame.MOUSEBUTTONDOWN:
-                if e.button == 1:
-                    if ui.hover_element and ui.hover_element.on_click:
-                        ui.call_event(ui.hover_element)
+            ui.handle_event(screen, e)
 
-        screen.fill((0, 0, 0, 0))
+        # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
         pygame.display.update()
 
