@@ -2,6 +2,8 @@ import pygame
 import ticks
 import gui
 import languages
+import game
+import math
 
 
 def change_document(name):
@@ -115,6 +117,7 @@ def main():
     gui.init()
     languages.load("res/lang/none.yaml")
     change_document("title")
+    main_game = game.Game()
 
     while True:
         ticks.update()
@@ -123,9 +126,13 @@ def main():
             if e.type == pygame.QUIT:
                 return
             ui.handle_event(screen, e)
+            main_game.handle_event(screen, e)
 
         # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
+        render_x, render_y = (ticks.get_time() / 1000), math.pi / 8
+        main_game.render(screen, render_x, render_y)
+        # print((render_x, render_y))
         pygame.display.update()
 
         # Limit framerate so as to not heat up CPU unnecessarily
