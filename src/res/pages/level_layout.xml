@@ -13,7 +13,7 @@
                 </image>
             </horizontal>
         </vertical>
-<!--        <space colour="#FF00FFFF"/>-->
+        <space id="game"/>
     </horizontal>
     <horizontal length="min" colour="#0000007F" align="distribute">
         <button length="min" margin="10px" colour="#00FF00FF">level.blocks.forward</button>

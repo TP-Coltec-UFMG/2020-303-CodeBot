@@ -3,7 +3,7 @@ import ticks
 import gui
 import languages
 import game
-import math
+# import math
 
 
 def change_document(name):
@@ -64,6 +64,10 @@ def title_quit(_: gui.Element):
 def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
+    global main_game, level
+    main_game = game.Game(ui.ids["game"])
+    main_game.update_position(None, None, 2)
+    level = game.Level(f"res/levels/{elem.id}.yaml")
 
 
 def lang_select(elem: gui.Element):
@@ -76,6 +80,14 @@ def lang_select(elem: gui.Element):
 def back_title(_: gui.Element):
     print("Back to title screen!")
     change_document("title")
+
+
+def back_level_select(_: gui.Element):
+    print("Back to level select!")
+    change_document("levels")
+    global main_game, level
+    main_game = None
+    level = None
 
 
 uis = {
@@ -100,7 +112,7 @@ ui_callbacks = {
         "select": lang_select
     },
     "level": {
-        "back": title_start,
+        "back": back_level_select,
     },
 }
 for k in ui_callbacks:
@@ -111,13 +123,15 @@ ui = uis[current_ui]
 pygame.init()
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
+level = None
+main_game = None
+
 
 def main():
     clk = pygame.time.Clock()
     gui.init()
     languages.load("res/lang/none.yaml")
     change_document("title")
-    main_game = game.Game()
 
     while True:
         ticks.update()
@@ -126,12 +140,14 @@ def main():
             if e.type == pygame.QUIT:
                 return
             ui.handle_event(screen, e)
-            main_game.handle_event(screen, e)
+            if isinstance(main_game, game.Game):
+                main_game.handle_event(screen, e)
 
         # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
-        render_x, render_y = (ticks.get_time() / 1000), math.pi / 8
-        main_game.render(screen, render_x, render_y)
+        if isinstance(main_game, game.Game) and isinstance(level, game.Level):
+            # main_game.update_position((ticks.get_time() / 3000), None, 2)
+            main_game.render(screen, level.level_map)
         # print((render_x, render_y))
         pygame.display.update()
 
