@@ -298,7 +298,8 @@ class Space(Element):
         super().__init__(document, tag, attrs)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        fill_rect(screen, self.rect, self.colour)
+        if self.colour != 0:
+            fill_rect(screen, self.rect, self.colour)
 
 
 class Image(Element):
@@ -413,7 +414,8 @@ class Horizontal(Container):
             c.calc_draw(pygame.Rect(*along_t), document)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        fill_rect(screen, self.rect, self.colour)
+        if self.colour != 0:
+            fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0xFF0000)
 
     @add_margin
@@ -440,7 +442,8 @@ class Vertical(Container):
             c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        fill_rect(screen, self.rect, self.colour)
+        if self.colour != 0:
+            fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0x00FF00)
 
     @add_margin
@@ -467,7 +470,8 @@ class Lengthwise(Container):
                 c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        fill_rect(screen, self.rect, self.colour)
+        if self.colour != 0:
+            fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0x00FF00)
 
     @add_margin
@@ -495,7 +499,8 @@ class Crosswise(Container):
                 c.calc_draw(pygame.Rect(*along_t), document)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        fill_rect(screen, self.rect, self.colour)
+        if self.colour != 0:
+            fill_rect(screen, self.rect, self.colour)
         draw_box(screen, self.rect, 0x00FF00)
 
     @add_margin

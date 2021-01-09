@@ -41,17 +41,35 @@ class Level:
 
 
 class Game:
-    def __init__(self, elem: gui.Element):
+    def __init__(self):
+        # UI interactions
         self.block_dragged = None
         self.click_start = -1
+        # 3D angles
         self.yaw = math.pi / 4
         self.pitch = math.pi / 6
         self.zoom = 1
-        self.elem = elem
+        # UI integrations
+        self.elem = None
+        self.level = None
+        self.enabled = False
+        # Game
         self.robot_x = 0
         self.robot_y = -1
 
+    def enable(self, elem: gui.Element, level: Level):
+        self.elem = elem
+        self.level = level
+        self.enabled = True
+
+    def disable(self):
+        self.elem = None
+        self.level = None
+        self.enabled = False
+
     def handle_event(self, _: pygame.Surface, event: pygame.event.Event):
+        if not self.enabled:
+            return
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.click_start = ticks.get_time()
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -66,7 +84,9 @@ class Game:
         if zoom:
             self.zoom = zoom
 
-    def render(self, screen: pygame.Surface, level_map: pygame.Surface):
+    def render(self, screen: pygame.Surface):
+        if not self.enabled:
+            return
         # Transform axis vectors
         x_axis = pygame.math.Vector2(texture_res * self.zoom, 0)
         y_axis = pygame.math.Vector2(0, texture_res * self.zoom)
@@ -75,7 +95,7 @@ class Game:
         x_axis.y *= math.sin(self.pitch)
         y_axis.y *= math.sin(self.pitch)
         # Transform rendered map
-        map_render = pygame.transform.rotozoom(level_map, math.degrees(self.yaw), self.zoom)
+        map_render = pygame.transform.rotozoom(self.level.level_map, math.degrees(self.yaw), self.zoom)
         map_render = pygame.transform.scale(
             map_render,
             (int(map_render.get_width()),

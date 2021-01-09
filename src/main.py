@@ -64,10 +64,8 @@ def title_quit(_: gui.Element):
 def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
-    global main_game, level
-    main_game = game.Game(ui.ids["game"])
+    main_game.enable(ui.ids["game"], game.Level(f"res/levels/{elem.id}.yaml"))
     main_game.update_position(None, None, 2)
-    level = game.Level(f"res/levels/{elem.id}.yaml")
 
 
 def lang_select(elem: gui.Element):
@@ -85,9 +83,7 @@ def back_title(_: gui.Element):
 def back_level_select(_: gui.Element):
     print("Back to level select!")
     change_document("levels")
-    global main_game, level
-    main_game = None
-    level = None
+    main_game.disable()
 
 
 uis = {
@@ -123,8 +119,7 @@ ui = uis[current_ui]
 pygame.init()
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
-level = None
-main_game = None
+main_game = game.Game()
 
 
 def main():
@@ -140,15 +135,18 @@ def main():
             if e.type == pygame.QUIT:
                 return
             ui.handle_event(screen, e)
-            if isinstance(main_game, game.Game):
-                main_game.handle_event(screen, e)
+            main_game.handle_event(screen, e)
 
         # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
-        if isinstance(main_game, game.Game) and isinstance(level, game.Level):
-            # main_game.update_position((ticks.get_time() / 3000), None, 2)
-            main_game.render(screen, level.level_map)
+        main_game.update_position((ticks.get_time() / 1000), None, 2)
+        main_game.render(screen)
         # print((render_x, render_y))
+        delta = ticks.get_variation()
+        if delta == 0:
+            gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"inf fps", 0xFFFFFFFF)
+        else:
+            gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"{int(1000 / delta)} fps", 0xFFFFFFFF)
         pygame.display.update()
 
         # Limit framerate so as to not heat up CPU unnecessarily
