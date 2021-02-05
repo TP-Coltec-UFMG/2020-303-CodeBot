@@ -58,7 +58,8 @@ def title_lang(_: gui.Element):
 
 def title_quit(_: gui.Element):
     print("Exit!")
-    pygame.event.post(pygame.event.Event(pygame.QUIT))
+    # pygame.event.post(pygame.event.Event(pygame.QUIT))
+    change_document("quit")
 
 
 def level_select(elem: gui.Element):
@@ -91,6 +92,7 @@ uis = {
     "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
     "language": gui.LoaderXML("res/pages/language_select.xml").get_document(),
     "level": gui.LoaderXML("res/pages/level_layout.xml").get_document(),
+    "quit": gui.LoaderXML("res/pages/quit_confirm.xml").get_document(),
 }
 ui_callbacks = {
     "title": {
@@ -110,7 +112,11 @@ ui_callbacks = {
     "level": {
         "back": back_level_select,
     },
+    "quit": {
+
+    }
 }
+
 for k in ui_callbacks:
     uis[k].set_callbacks(ui_callbacks[k])
 current_ui = "title"
@@ -143,10 +149,10 @@ def main():
         main_game.render(screen)
         # print((render_x, render_y))
         delta = ticks.get_variation()
-        if delta == 0:
-            gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"inf fps", 0xFFFFFFFF)
-        else:
-            gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"{int(1000 / delta)} fps", 0xFFFFFFFF)
+        # if delta == 0:
+        #     gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"inf fps", 0xFFFFFFFF)
+        # else:
+        #     gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"{int(1000 / delta)} fps", 0xFFFFFFFF)
         pygame.display.update()
 
         # Limit framerate so as to not heat up CPU unnecessarily

@@ -17,3 +17,7 @@ level:
     forward: "andar()"
     left: "esquerda()"
     right: "direita()"
+quit:
+  y: "Sim, quero sair"
+  n: "Não"
+  confirm: "Tem certeza de que deseja sair?"

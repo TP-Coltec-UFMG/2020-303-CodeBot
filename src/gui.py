@@ -8,7 +8,7 @@ _font: pygame.font.Font
 
 def init():
     global _font
-    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 20)
+    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 30)
 
 
 def debug(func: callable) -> callable:
@@ -387,7 +387,7 @@ class Button(Element):
 
 class Text(Element):
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        # draw_box(screen, self.rect, 0xFF00FF, True)
+        draw_box(screen, self.rect, 0xFF00FF, True)
         draw_text(screen, self.rect, languages.get_str(self.data), self.colour)
 
     @add_margin

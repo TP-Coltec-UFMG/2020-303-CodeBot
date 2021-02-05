@@ -36,6 +36,7 @@ def get_name(filename: str):
 
 def get_str(string: str, report=False) -> str:
     global strings
+    # print(strings)
     keys = string.split('.')
     fetch = strings
     for k in keys:

@@ -1,0 +1,47 @@
+<overlap>
+    <vertical align="proportional" colour="#003F7FFF">
+        <horizontal length="40%" align="centre">
+            <space length="10%"/>
+            <overlap>
+                <horizontal>
+                    <space length="300px"/>
+                </horizontal>
+                <vertical align="down">
+                    <image
+                            length="80%"
+                            smooth="true"
+                            align="down">
+                        res/textures/title2.png
+                    </image>
+                </vertical>
+            </overlap>
+            <space length="10%"/>
+        </horizontal>
+        <space length="5%"/>
+        <horizontal align="centre">
+            <space length="30%"/>
+            <vertical align="up">
+                <button length="min" margin="5px" on_click="start">title.start_game</button>
+                <button length="min" margin="5px" on_click="lang">title.languages</button>
+                <button length="min" margin="5px" on_click="exit">title.quit</button>
+            </vertical>
+            <space length="30%"/>
+        </horizontal>
+    </vertical>
+    <vertical align="centre">
+        <horizontal length="40%" align="centre">
+            <overlap length="70%">
+                <space colour="#003F7FFF"/>
+                <vertical margin="10px" colour="#0000003F" align="centre">
+                    <horizontal length="30%" align="centre">
+                        <text colour="#FFFFFFFF" length="min">quit.confirm</text>
+                    </horizontal>
+                    <horizontal length="30%" align="distribute">
+                        <button length="40%" margin="5px" colour="#FF0000FF">quit.y</button>
+                        <button length="40%" margin="5px" colour="#00FF00FF">quit.n</button>
+                    </horizontal>
+                </vertical>
+            </overlap>
+        </horizontal>
+    </vertical>
+</overlap>
