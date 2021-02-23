@@ -62,6 +62,12 @@ def title_quit(_: gui.Element):
     change_document("quit")
 
 
+def game_quit(_: gui.Element):
+    print("Exit!")
+    pygame.event.post(pygame.event.Event(pygame.QUIT))
+    # change_document("quit")
+
+
 def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
@@ -113,7 +119,8 @@ ui_callbacks = {
         "back": back_level_select,
     },
     "quit": {
-
+        "quit": game_quit,
+        "cancel_quit": back_title,
     }
 }
 
@@ -148,7 +155,7 @@ def main():
         main_game.update_position((ticks.get_time() / 1000), None, 2)
         main_game.render(screen)
         # print((render_x, render_y))
-        delta = ticks.get_variation()
+        # delta = ticks.get_variation()
         # if delta == 0:
         #     gui.draw_text(screen, pygame.Rect(0, 0, 0, 0), f"inf fps", 0xFFFFFFFF)
         # else:

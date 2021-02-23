@@ -37,8 +37,8 @@
                         <text colour="#FFFFFFFF" length="min">quit.confirm</text>
                     </horizontal>
                     <horizontal length="30%" align="distribute">
-                        <button length="40%" margin="5px" colour="#FF0000FF">quit.y</button>
-                        <button length="40%" margin="5px" colour="#00FF00FF">quit.n</button>
+                        <button length="40%" margin="5px" colour="#FF0000FF" on_click="quit">quit.y</button>
+                        <button length="40%" margin="5px" colour="#00FF00FF" on_click="cancel_quit">quit.n</button>
                     </horizontal>
                 </vertical>
             </overlap>
