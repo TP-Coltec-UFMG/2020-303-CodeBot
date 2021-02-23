@@ -1,0 +1,24 @@
+lang_name: "Deutsch (DE)"
+title:
+  start_game: "Spielen"
+  languages: "Sprachen"
+  quit: "Beenden"
+levels:
+  title: "Wählen Sie ein Nivea
+  u aus"
+  level1: "Niveau 1"
+  level2: "Niveau 2"
+  back: "Zum titel zurückkommen"
+lang:
+  title: "Sprache auswählen"
+  back: "Zum titel zurückkommen"
+level:
+  back: "Beenden"
+  blocks:
+    forward: "gehen()"
+    left: "links()"
+    right: "rechts()"
+quit:
+  y: "Ja, möchte ich gehen"
+  n: "Nein"
+  confirm: "Sind Sie sicher?"
