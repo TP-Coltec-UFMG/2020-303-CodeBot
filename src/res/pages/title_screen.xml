@@ -1,29 +1,31 @@
-<vertical align="proportional" colour="#003F7FFF">
-    <horizontal length="40%" align="centre">
-        <space length="10%"/>
-        <overlap>
-            <horizontal>
-                <space length="300px"/>
-            </horizontal>
-            <vertical align="down">
-                <image
-                        length="80%"
-                        smooth="true"
-                        align="down">
-                    res/textures/title2.png
-                </image>
+<overlap>
+    <vertical align="proportional" colour="#003F7FFF">
+        <horizontal length="40%" align="centre">
+            <space length="10%"/>
+            <overlap>
+                <horizontal>
+                    <space length="300px"/>
+                </horizontal>
+                <vertical align="down">
+                    <image
+                            length="80%"
+                            smooth="true"
+                            align="down">
+                        res/textures/title2.png
+                    </image>
+                </vertical>
+            </overlap>
+            <space length="10%"/>
+        </horizontal>
+        <space length="5%"/>
+        <horizontal align="centre">
+            <space length="30%"/>
+            <vertical align="up">
+                <button length="min" margin="5px" on_click="start">title.start_game</button>
+                <button length="min" margin="5px" on_click="lang">title.languages</button>
+                <button length="min" margin="5px" on_click="exit">title.quit</button>
             </vertical>
-        </overlap>
-        <space length="10%"/>
-    </horizontal>
-    <space length="5%"/>
-    <horizontal align="centre">
-        <space length="30%"/>
-        <vertical align="up">
-            <button length="min" margin="5px" on_click="start">title.start_game</button>
-            <button length="min" margin="5px" on_click="lang">title.languages</button>
-            <button length="min" margin="5px" on_click="exit">title.quit</button>
-        </vertical>
-        <space length="30%"/>
-    </horizontal>
-</vertical>
+            <space length="30%"/>
+        </horizontal>
+    </vertical>
+</overlap>
