@@ -23,17 +23,17 @@ class Level:
         # Map data
         self.map = data["map"]
         # Map surface
-        height = len(self.map)
-        width = 0
-        if height > 0:
+        self.height = len(self.map)
+        self.width = 0
+        if self.height > 0:
             for row in self.map:
                 if len(row) != len(self.map[0]):
                     raise ValueError("Invalid map, inconsistent row lengths.")
-            width = len(self.map[0])
-        self.level_map = pygame.Surface((width * texture_res, height * texture_res), pygame.SRCALPHA)
+            self.width = len(self.map[0])
+        self.level_map = pygame.Surface((self.width * texture_res, self.height * texture_res), pygame.SRCALPHA)
 
-        for i in range(height):
-            for j in range(width):
+        for i in range(self.height):
+            for j in range(self.width):
                 tile = self.map[i][j]
                 area = pygame.Rect(tile * texture_res, 0, texture_res, texture_res)
                 dest = (j * texture_res, i * texture_res)
@@ -45,6 +45,9 @@ class Game:
         # UI interactions
         self.block_dragged = None
         self.click_start = -1
+        self.click_start_pos = None
+        self.click_type = 0
+        self.old_view = (0, 0)
         # 3D angles
         self.yaw = math.pi / 4
         self.pitch = math.pi / 6
@@ -61,6 +64,8 @@ class Game:
         self.elem = elem
         self.level = level
         self.enabled = True
+        lvl_size = max(self.level.width, self.level.height) * texture_res
+        self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
 
     def disable(self):
         self.elem = None
@@ -72,15 +77,34 @@ class Game:
             return
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.click_start = ticks.get_time()
+            mpos = pygame.mouse.get_pos()
+            self.click_start_pos = mpos
+            if self.elem.rect.collidepoint(mpos):
+                self.click_type = 1  # drag/pan
+                self.old_view = (self.yaw, self.pitch)
         elif event.type == pygame.MOUSEBUTTONUP:
             click_duration = ticks.get_time() - self.click_start
+            self.click_type = 0
+            self.click_start = -1
             print(click_duration)
+        elif event.type == pygame.VIDEORESIZE:
+            lvl_size = max(self.level.width, self.level.height) * texture_res
+            self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
+
+    def update(self):
+        mpos = pygame.mouse.get_pos()
+        if self.click_start > -1:
+            if self.click_type == 1:
+                # print("Dragging")
+                n_yaw = (mpos[0] - self.click_start_pos[0]) / 100 + self.old_view[0]
+                n_pitch = (mpos[1] - self.click_start_pos[1]) / 100 + self.old_view[1]
+                self.update_position(n_yaw, n_pitch, None)
 
     def update_position(self, yaw=None, pitch=None, zoom=None):
         if yaw:
             self.yaw = yaw
         if pitch:
-            self.pitch = pitch
+            self.pitch = min(max(pitch, math.pi / 6), math.pi / 3)
         if zoom:
             self.zoom = zoom
 

@@ -72,7 +72,7 @@ def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
     main_game.enable(ui.ids["game"], game.Level(f"res/levels/{elem.id}.yaml"))
-    main_game.update_position(None, None, 2)
+    # main_game.update_position(None, None, 2)
 
 
 def lang_select(elem: gui.Element):
@@ -150,9 +150,11 @@ def main():
             ui.handle_event(screen, e)
             main_game.handle_event(screen, e)
 
+        main_game.update()
+
         # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
-        main_game.update_position((ticks.get_time() / 1000), None, 2)
+        # main_game.update_position((ticks.get_time() / 1000), None, None)
         main_game.render(screen)
         # print((render_x, render_y))
         # delta = ticks.get_variation()

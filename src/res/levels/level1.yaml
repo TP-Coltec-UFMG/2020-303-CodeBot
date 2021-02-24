@@ -3,3 +3,6 @@ map:
   - [2, 2, 2]
   - [1, 1, 2]
   - [1, 1, 2]
+player:
+  start-x: 0
+  start-y: 0
