@@ -1,0 +1,23 @@
+lang_name: "Espanhol (ES)"
+title:
+  start_game: "Jugar"
+  languages: "Idiomas"
+  quit: "Abandonar el juego"
+levels:
+  title: "Selecciona un nivel para jugar"
+  level1: "Nivel 1"
+  level2: "Nivel 2"
+  back: "Regresar"
+lang:
+  title: "Seleccione su idioma"
+  back: "Regresar"
+level:
+  back: "Abandona el nivel"
+  blocks:
+    forward: "caminar()"
+    left: "izquierda()"
+    right: "derecha()"
+quit:
+  y: "Sí, quiero salir del juego."
+  n: "No"
+  confirm: "¿Estás seguro de salir del juego?"
