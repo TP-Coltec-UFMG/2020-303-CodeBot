@@ -71,9 +71,7 @@ def game_quit(_: gui.Element):
 def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
-    main_game.enable(ui, game.Level(f"res/levels/{elem.id}.yaml"))
-    ui.calc_draw(screen.get_clip())
-    ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
+    main_game.enable(ui, game.Level(f"res/levels/{elem.id}.yaml"), screen)
     # main_game.update_position(None, None, 2)
 
 

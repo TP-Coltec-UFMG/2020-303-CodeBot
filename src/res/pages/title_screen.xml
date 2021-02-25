@@ -22,6 +22,7 @@
             <space length="30%"/>
             <vertical align="up">
                 <button length="min" margin="5px" on_click="start">title.start_game</button>
+<!--                <button length="min" margin="5px" on_click="lang">title.options</button>-->
                 <button length="min" margin="5px" on_click="lang">title.languages</button>
                 <button length="min" margin="5px" on_click="exit">title.quit</button>
             </vertical>

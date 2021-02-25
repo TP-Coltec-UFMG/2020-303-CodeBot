@@ -11,7 +11,7 @@ _font: pygame.font.Font
 
 def init():
     global _font
-    _font = pygame.font.Font("res/font/JetBrainsMono-Bold.ttf", 20)
+    _font = pygame.font.Font("res/font/JetBrainsMono-Bold.ttf", 25)
 
 
 def draw_text(screen: pygame.Surface, rect: pygame.Rect, data: str, colour):
@@ -19,8 +19,16 @@ def draw_text(screen: pygame.Surface, rect: pygame.Rect, data: str, colour):
     screen.blit(font_surface, rect)
 
 
+def fill_rect(screen: pygame.Surface, rect: pygame.Rect, colour):
+    c = pygame.Color(colour)
+    s = pygame.Surface(rect.size)  # the size of your rect
+    s.set_alpha(c.a)  # alpha level
+    s.fill(c)  # this fills the entire surface
+    screen.blit(s, rect.topleft)
+
+
 class SlicedSprite:
-    def __init__(self, image: pygame.Surface, corner_size: int = 32):
+    def __init__(self, image: pygame.Surface, corner_size: int = 16):
         self.image = image
         self.corner = corner_size
         self.size = image.get_size()
@@ -138,6 +146,11 @@ class Level:
             self.width = len(self.map[0])
         self.level_map = pygame.Surface((self.width * texture_res, self.height * texture_res), pygame.SRCALPHA)
 
+        player = data["player"]
+        self.start_x = player["start-x"]
+        self.start_y = player["start-y"]
+        self.start_dir = player["start-dir"]
+
         for i in range(self.height):
             for j in range(self.width):
                 tile = self.map[i][j]
@@ -148,39 +161,57 @@ class Level:
 
 class Game:
     def __init__(self):
-        # Blocks
+        # Code
+        self.code = None
+        # Blocks (source)
         self.blocks = []
         # UI interactions
         self.block_dragged = None
         self.block_offset = (0, 0)
         self.click_start = -1
         self.click_start_pos = None
-        self.click_type = 0
+        self.click_type = 0  # 1 = pan, 2 = drag block
         # 3D angles
         self.yaw = math.pi / 4
         self.pitch = math.pi / 6
         self.zoom = 1
-        self.old_view = (0, 0)
+        self.old_view = (0, 0)  # (yaw, pitch)
         # UI integrations
-        self.elem = None
-        self.level = None
-        self.enabled = False
+        self.elem = None  # Container for rendering game scene
+        self.level = None  # Current level object
+        self.enabled = False  # false = in title screen
         # Game
         self.robot_x = 0
-        self.robot_y = -1
+        self.robot_y = 0
+        self.robot_dir = 0
 
-    def enable(self, document: gui.DocumentXML, level: Level):
+    def enable(self, document: gui.DocumentXML, level: Level, screen: pygame.Surface):
         self.elem = document.ids["game"]
         self.level = level
         self.enabled = True
         lvl_size = max(self.level.width, self.level.height) * texture_res
+
         self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
+        self.yaw = math.pi / 4
+        self.pitch = math.pi / 6
+
+        self.code = Code(document)
+
+        self.robot_x = level.start_x
+        self.robot_y = level.start_y
+        self.robot_dir = level.start_dir
 
         btnlist: gui.Element = document.ids["blocklist"]
         btnlist.children.clear()
         self.blocks = []
         for i, b in enumerate(level.blocks):
-            self.blocks.append(Blocklist(document, b, i))
+            blocklist = Blocklist(document, b, i)
+            self.blocks.append(blocklist)
+        document.calc_draw(screen.get_clip())
+        for b in self.blocks:
+            b.update()
+        document.calc_draw(screen.get_clip())
+        document.hover_element = document.trace_element(pygame.mouse.get_pos())
 
     def disable(self):
         self.elem = None
@@ -192,7 +223,7 @@ class Game:
         if not self.enabled:
             return
         mpos = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.click_start = ticks.get_time()
             self.click_start_pos = mpos
             if self.elem.rect.collidepoint(mpos):
@@ -205,13 +236,17 @@ class Game:
                         self.click_type = 2
                         self.block_dragged = b.get_new_block(pygame.Rect(mpos[0], mpos[1], 0, 0))
                         self.block_offset = (mpos[0] - b.block.pos.x, mpos[1] - b.block.pos.y)
-        elif event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 2:
-                if click_duration < 100:
+                if self.code.elem.rect.collidepoint(mpos):
+                    print("Block placed")
+                    self.code.place_block(self.block_dragged)
+                if click_duration < 150:
                     print("Clicked")
+                    self.move_bot(self.block_dragged.name)
                 else:
-                    print("Dropped")
+                    print(f"Dropped ({click_duration})")
             self.click_type = 0
             self.click_start = -1
         elif event.type == pygame.VIDEORESIZE:
@@ -219,7 +254,12 @@ class Game:
             self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
 
     def update(self):
+        if not self.enabled:
+            return
         mpos = pygame.mouse.get_pos()
+        for b in self.blocks:
+            b.update()
+        self.code.update()
         if self.click_start > -1:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 1:
@@ -228,13 +268,15 @@ class Game:
                 n_pitch = (mpos[1] - self.click_start_pos[1]) / 400 + self.old_view[1]
                 self.update_position(n_yaw, n_pitch, None)
             elif self.click_type == 2:
-                if click_duration >= 100:
+                if click_duration >= 150:
                     self.block_dragged: Codeblock
                     self.block_dragged.pos = pygame.Rect(
                         mpos[0] - self.block_offset[0],
                         mpos[1] - self.block_offset[1],
                         0, 0
                     )
+                    if self.code.elem.rect.collidepoint(mpos):
+                        print("alo")
 
     def update_position(self, yaw=None, pitch=None, zoom=None):
         if yaw:
@@ -247,6 +289,7 @@ class Game:
     def draw(self, screen: pygame.Surface):
         if not self.enabled:
             return
+        self.code.render(screen)
         self.render_scene(screen)
         for b in self.blocks:
             b: Blocklist
@@ -255,9 +298,24 @@ class Game:
             # mpos = pygame.mouse.get_pos()
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 2:
-                if click_duration >= 100:
+                if click_duration >= 150:
                     self.block_dragged: Codeblock
                     self.block_dragged.draw(screen)
+
+    def move_bot(self, move):
+        if move == "forward":
+            pos_offset = (
+                (0, -1),
+                (-1, 0),
+                (0, 1),
+                (1, 0),
+            )[self.robot_dir]
+            self.robot_x += pos_offset[0]
+            self.robot_y += pos_offset[1]
+        elif move == "left":
+            self.robot_dir = (self.robot_dir + 1) % 4
+        elif move == "right":
+            self.robot_dir = (self.robot_dir - 1) % 4
 
     def render_scene(self, screen: pygame.Surface):
         # Transform axis vectors
@@ -277,14 +335,17 @@ class Game:
         pos_x = self.elem.rect.x + (self.elem.rect.w / 2)
         pos_y = self.elem.rect.y + (self.elem.rect.h / 2)
         # Scale robot sprite
-        robot_pos = x_axis * self.robot_x + y_axis * self.robot_y + pygame.math.Vector2(pos_x, pos_y)
-        angle = ((self.yaw + math.pi * 9 / 8) % (math.pi * 2)) * 8 / (math.pi * 2)
-        bot_render = pygame.Surface((robot_res, robot_res), pygame.SRCALPHA)
-        bot_render.blit(
-            robot_atlas,
-            (0, 0),
-            pygame.Rect(int(angle) * robot_res, 0, robot_res, robot_res)
-        )
+        robot_pos_real = (self.robot_x - self.level.width / 2 + .5, self.robot_y - self.level.height / 2 + .5)
+        robot_pos = x_axis * robot_pos_real[0] + y_axis * robot_pos_real[1] + pygame.math.Vector2(pos_x, pos_y)
+        angle = ((self.yaw + self.robot_dir * math.pi / 2 + math.pi * 9 / 8) % (math.pi * 2)) * 8 / (math.pi * 2)
+        bot_render = robot_atlas.subsurface(
+            pygame.Rect(
+                int(angle) * robot_res,
+                0,
+                robot_res,
+                robot_res
+            )
+        ).copy()
         bot_render = pygame.transform.rotozoom(bot_render, 0, self.zoom / 2)
         # Rendering
         screen.blit(map_render, (pos_x - map_render.get_width() / 2, pos_y - map_render.get_height() / 2))
@@ -298,7 +359,7 @@ class Game:
 class Blocklist:
     def __init__(self, document: gui.DocumentXML, block_name: str, colour: int = 0):
         btnlist: gui.Element = document.ids["blocklist"]
-        self.elem = gui.Space(document, "space", {})
+        self.elem = gui.Space(document, "space", {"margin": "10px"})
         btnlist.add_child(self.elem)
         self.name = block_name
         self.colour = colour
@@ -307,8 +368,11 @@ class Blocklist:
     def get_new_block(self, rect: pygame.Rect):
         return Codeblock(code_block_textures[self.colour], self.name, rect)
 
-    def draw(self, screen: pygame.Surface):
+    def update(self):
         self.block.pos = self.elem.rect
+        self.elem.length = f"{self.block.get_box().w}px"
+
+    def draw(self, screen: pygame.Surface):
         self.block.draw(screen)
 
 
@@ -317,6 +381,7 @@ class Codeblock:
         self.sprite = sprite
         self.name = name
         self.pos = pos
+        self.children = []
 
     def draw(self, screen: pygame.Surface):
         text = languages.get_str("level.blocks." + self.name)
@@ -338,3 +403,51 @@ class Codeblock:
             size[0] + self.sprite.corner * 2,
             size[1] + self.sprite.corner * 2
         )
+
+
+class Code:
+    def __init__(self, document: gui.DocumentXML):
+        self.elem: gui.Element = document.ids["code"]
+        self.blocks = []
+        self.cursors = []  # For nested blocks
+        self.cursor = 0
+
+    def place_block(self, block: Codeblock):
+        context = self.blocks
+        for c in self.cursors:
+            context = context[c].children
+        self.blocks.insert(self.cursor, block)
+        self.cursor += 1
+
+    def update(self):
+        current_y = 0
+        for i, b in enumerate(self.blocks):
+            b: Codeblock
+            b.pos = pygame.Rect(0, current_y, 0, 0)
+            current_y += b.get_box().h
+            if i == self.cursor:
+                current_y += 10
+
+    def set_cursor(self, path: list):
+        self.cursors = path[:-1]
+        self.cursor = path[-1]
+
+    def render(self, screen: pygame.Surface):
+        dest = screen.subsurface(self.elem.rect)
+        current_y = 0
+        for i, b in enumerate(self.blocks):
+            b: Codeblock
+            b.draw(dest)
+            if i == self.cursor:
+                fill_rect(dest, pygame.Rect(0, current_y, 1000, 10), 0xFFFFFF3F)
+                current_y += 10
+            current_y += b.get_box().h
+        if self.cursor == len(self.blocks):
+            fill_rect(dest, pygame.Rect(0, current_y, 1000, 10), 0xFFFFFF3F)
+        pass
+
+    def exec(self):
+        pass
+
+    def step(self):
+        pass
