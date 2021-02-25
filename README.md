@@ -6,7 +6,7 @@ Ele vem equipado com um sistema de escolha de idiomas (para maior acessibilidade
 
 <center>
   <img src="https://github.com/TP-Coltec-UFMG/codebot/blob/main/wiki-imgs/menu.png" alt="Menu inicial" width="500">
- <\center>
+ </center>
 
 ## Grupo:
 - [Edson Paschoal](https://github.com/sshEdd1e)
