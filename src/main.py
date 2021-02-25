@@ -32,8 +32,8 @@ def title_options(_: gui.Element):
 def title_lang(_: gui.Element):
     print("Language select!")
     document = uis["language"]
-    lang_list: list = document.ids["lang_list"].children
-    lang_list.clear()
+    lang_list: gui.Element = document.ids["lang_list"]
+    lang_list.children.clear()
     for lang in languages.refresh():
         print(lang)
         name: str
@@ -52,7 +52,7 @@ def title_lang(_: gui.Element):
             "id": lang,
         })
         button.data = name
-        lang_list.append(button)
+        lang_list.add_child(button)
     change_document("language")
 
 
@@ -71,7 +71,9 @@ def game_quit(_: gui.Element):
 def level_select(elem: gui.Element):
     print(elem.id)
     change_document("level")
-    main_game.enable(ui.ids["game"], game.Level(f"res/levels/{elem.id}.yaml"))
+    main_game.enable(ui, game.Level(f"res/levels/{elem.id}.yaml"))
+    ui.calc_draw(screen.get_clip())
+    ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
     # main_game.update_position(None, None, 2)
 
 
@@ -138,6 +140,7 @@ main_game = game.Game()
 def main():
     clk = pygame.time.Clock()
     gui.init()
+    game.init()
     languages.load("res/lang/none.yaml")
     change_document("title")
 
@@ -155,7 +158,7 @@ def main():
         # screen.fill((0, 0, 0, 0))
         ui.draw(screen)
         # main_game.update_position((ticks.get_time() / 1000), None, None)
-        main_game.render(screen)
+        main_game.draw(screen)
         # print((render_x, render_y))
         # delta = ticks.get_variation()
         # if delta == 0:

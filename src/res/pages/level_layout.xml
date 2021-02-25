@@ -15,9 +15,12 @@
         </vertical>
         <space id="game"/>
     </horizontal>
-    <horizontal length="min" colour="#0000007F" align="distribute">
-        <button length="min" margin="10px" colour="#00FF00FF">level.blocks.forward</button>
-        <button length="min" margin="10px" colour="#FFFF00FF">level.blocks.left</button>
-        <button length="min" margin="10px" colour="#FF7F00FF">level.blocks.right</button>
+    <horizontal length="15%" colour="#0000007F" align="distribute" id="blocklist">
+<!--        <button length="min" margin="10px" colour="#00FF00FF">level.blocks.forward</button>-->
+<!--        <button length="min" margin="10px" colour="#FFFF00FF">level.blocks.left</button>-->
+<!--        <button length="min" margin="10px" colour="#FF7F00FF">level.blocks.right</button>-->
+<!--        <space colour="#00FF00FF"/>-->
+<!--        <space colour="#FFFF00FF"/>-->
+<!--        <space colour="#FF7F00FF"/>-->
     </horizontal>
 </vertical>

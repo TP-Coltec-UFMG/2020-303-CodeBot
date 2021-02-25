@@ -1,4 +1,8 @@
 blocks:
+  - left
+  - forward
+  - right
+  - repeat
 map:
   - [2, 2, 2]
   - [1, 1, 2]

@@ -17,6 +17,7 @@ level:
     forward: "move()"
     left: "left()"
     right: "right()"
+    repeat: "for () {}"
 quit:
   y: "Yes, I want to quit"
   n: "No"
