@@ -276,7 +276,7 @@ class Game:
                         0, 0
                     )
                     if self.code.elem.rect.collidepoint(mpos):
-                        print("alo")
+                        self.code.cursor_closest(mpos)
 
     def update_position(self, yaw=None, pitch=None, zoom=None):
         if yaw:
@@ -419,18 +419,46 @@ class Code:
         self.blocks.insert(self.cursor, block)
         self.cursor += 1
 
+    def cursor_closest(self, pos: tuple):
+        vpos = pygame.Vector2(pos)
+        closest = 0
+        closest_dis = None
+        print(" == CLOSEST ==")
+        for i, b in enumerate(self.blocks):
+            b: Codeblock
+            block_pos = (b.pos.x + self.elem.rect.x, b.pos.y + self.elem.rect.y)
+            # fill_rect(
+            #     pygame.display.get_surface(),
+            #     pygame.Rect(b.pos.x - self.elem.rect.x, b.pos.y - self.elem.rect.y, 10, 10),
+            #     0xFF0000FF
+            # )
+            this_dis = pygame.Vector2(block_pos).distance_squared_to(vpos)
+            if closest_dis is None or this_dis < closest_dis:
+                closest = i
+                closest_dis = this_dis
+            print(f"block[{i}].dis = {this_dis}")
+        if len(self.blocks) > 0:
+            last_b = self.blocks[-1]
+            block_pos = (last_b.pos.x + self.elem.rect.x, last_b.pos.y + self.elem.rect.y + last_b.get_box().h)
+            last_dis = pygame.Vector2(block_pos).distance_squared_to(vpos)
+
+        self.set_cursor([closest])
+        print(f"closest = {closest}")
+        return closest
+
     def update(self):
         current_y = 0
         for i, b in enumerate(self.blocks):
             b: Codeblock
-            b.pos = pygame.Rect(0, current_y, 0, 0)
-            current_y += b.get_box().h
             if i == self.cursor:
                 current_y += 10
+            b.pos = pygame.Rect(0, current_y, 0, 0)
+            current_y += b.get_box().h
 
     def set_cursor(self, path: list):
         self.cursors = path[:-1]
         self.cursor = path[-1]
+        self.update()
 
     def render(self, screen: pygame.Surface):
         dest = screen.subsurface(self.elem.rect)
