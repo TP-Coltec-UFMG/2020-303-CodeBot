@@ -152,6 +152,7 @@ class Game:
         self.blocks = []
         # UI interactions
         self.block_dragged = None
+        self.block_offset = (0, 0)
         self.click_start = -1
         self.click_start_pos = None
         self.click_type = 0
@@ -190,9 +191,9 @@ class Game:
     def handle_event(self, _: pygame.Surface, event: pygame.event.Event):
         if not self.enabled:
             return
+        mpos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.click_start = ticks.get_time()
-            mpos = pygame.mouse.get_pos()
             self.click_start_pos = mpos
             if self.elem.rect.collidepoint(mpos):
                 self.click_type = 1  # drag/pan
@@ -200,12 +201,19 @@ class Game:
             else:
                 for b in self.blocks:
                     b: Blocklist
-                    b.block.get_box()
+                    if b.block.get_box().collidepoint(mpos):
+                        self.click_type = 2
+                        self.block_dragged = b.get_new_block(pygame.Rect(mpos[0], mpos[1], 0, 0))
+                        self.block_offset = (mpos[0] - b.block.pos.x, mpos[1] - b.block.pos.y)
         elif event.type == pygame.MOUSEBUTTONUP:
-            # click_duration = ticks.get_time() - self.click_start
+            click_duration = ticks.get_time() - self.click_start
+            if self.click_type == 2:
+                if click_duration < 100:
+                    print("Clicked")
+                else:
+                    print("Dropped")
             self.click_type = 0
             self.click_start = -1
-            # print(click_duration)
         elif event.type == pygame.VIDEORESIZE:
             lvl_size = max(self.level.width, self.level.height) * texture_res
             self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
@@ -213,11 +221,20 @@ class Game:
     def update(self):
         mpos = pygame.mouse.get_pos()
         if self.click_start > -1:
+            click_duration = ticks.get_time() - self.click_start
             if self.click_type == 1:
                 # print("Dragging")
                 n_yaw = (mpos[0] - self.click_start_pos[0]) / 100 + self.old_view[0]
                 n_pitch = (mpos[1] - self.click_start_pos[1]) / 400 + self.old_view[1]
                 self.update_position(n_yaw, n_pitch, None)
+            elif self.click_type == 2:
+                if click_duration >= 100:
+                    self.block_dragged: Codeblock
+                    self.block_dragged.pos = pygame.Rect(
+                        mpos[0] - self.block_offset[0],
+                        mpos[1] - self.block_offset[1],
+                        0, 0
+                    )
 
     def update_position(self, yaw=None, pitch=None, zoom=None):
         if yaw:
@@ -234,6 +251,13 @@ class Game:
         for b in self.blocks:
             b: Blocklist
             b.draw(screen)
+        if self.click_start > -1:
+            # mpos = pygame.mouse.get_pos()
+            click_duration = ticks.get_time() - self.click_start
+            if self.click_type == 2:
+                if click_duration >= 100:
+                    self.block_dragged: Codeblock
+                    self.block_dragged.draw(screen)
 
     def render_scene(self, screen: pygame.Surface):
         # Transform axis vectors
@@ -279,6 +303,9 @@ class Blocklist:
         self.name = block_name
         self.colour = colour
         self.block = Codeblock(code_block_textures[colour], block_name, pygame.Rect(0, 0, 0, 0))
+
+    def get_new_block(self, rect: pygame.Rect):
+        return Codeblock(code_block_textures[self.colour], self.name, rect)
 
     def draw(self, screen: pygame.Surface):
         self.block.pos = self.elem.rect
