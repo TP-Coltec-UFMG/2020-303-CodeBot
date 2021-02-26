@@ -236,6 +236,16 @@ class Game:
                         self.click_type = 2
                         self.block_dragged = b.get_new_block(pygame.Rect(mpos[0], mpos[1], 0, 0))
                         self.block_offset = (mpos[0] - b.block.pos.x, mpos[1] - b.block.pos.y)
+                        break
+                else:
+                    for i, b in enumerate(self.code.blocks):
+                        b: Codeblock
+                        rect: pygame.Rect = self.code.elem.rect
+                        if b.get_box(rect.topleft).collidepoint(mpos):
+                            self.click_type = 3
+                            self.block_dragged = b
+                            self.block_offset = (mpos[0] - b.pos.x - rect.x, mpos[1] - b.pos.y - rect.y)
+                            self.code.remove_block(i)
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 2:
@@ -244,9 +254,15 @@ class Game:
                     self.code.place_block(self.block_dragged)
                 if click_duration < 150:
                     print("Clicked")
-                    self.move_bot(self.block_dragged.name)
+                    self.code.place_block(self.block_dragged)
+                    # self.move_bot(self.block_dragged.name)
                 else:
                     print(f"Dropped ({click_duration})")
+            elif self.click_type == 3:
+                if self.code.elem.rect.collidepoint(mpos):
+                    print("Block placed")
+                    self.code.place_block(self.block_dragged)
+                print(f"Dropped ({click_duration})")
             self.click_type = 0
             self.click_start = -1
         elif event.type == pygame.VIDEORESIZE:
@@ -277,6 +293,15 @@ class Game:
                     )
                     if self.code.elem.rect.collidepoint(mpos):
                         self.code.cursor_closest(mpos)
+            elif self.click_type == 3:
+                self.block_dragged: Codeblock
+                self.block_dragged.pos = pygame.Rect(
+                    mpos[0] - self.block_offset[0],
+                    mpos[1] - self.block_offset[1],
+                    0, 0
+                )
+                if self.code.elem.rect.collidepoint(mpos):
+                    self.code.cursor_closest(mpos)
 
     def update_position(self, yaw=None, pitch=None, zoom=None):
         if yaw:
@@ -301,6 +326,9 @@ class Game:
                 if click_duration >= 150:
                     self.block_dragged: Codeblock
                     self.block_dragged.draw(screen)
+            elif self.click_type == 3:
+                self.block_dragged: Codeblock
+                self.block_dragged.draw(screen)
 
     def move_bot(self, move):
         if move == "forward":
@@ -395,11 +423,11 @@ class Codeblock:
             # 0x000000FF
         )
 
-    def get_box(self) -> pygame.Rect:
+    def get_box(self, off: tuple = (0, 0)) -> pygame.Rect:
         size = _font.size(languages.get_str("level.blocks." + self.name))
         return pygame.Rect(
-            self.pos.x,
-            self.pos.y,
+            self.pos.x + off[0],
+            self.pos.y + off[1],
             size[0] + self.sprite.corner * 2,
             size[1] + self.sprite.corner * 2
         )
@@ -418,6 +446,11 @@ class Code:
             context = context[c].children
         self.blocks.insert(self.cursor, block)
         self.cursor += 1
+
+    def remove_block(self, index: int):
+        if index < self.cursor:
+            self.cursor -= 1
+        self.blocks.pop(index)
 
     def cursor_closest(self, pos: tuple):
         vpos = pygame.Vector2(pos)
@@ -441,6 +474,9 @@ class Code:
             last_b = self.blocks[-1]
             block_pos = (last_b.pos.x + self.elem.rect.x, last_b.pos.y + self.elem.rect.y + last_b.get_box().h)
             last_dis = pygame.Vector2(block_pos).distance_squared_to(vpos)
+            if last_dis < closest_dis:
+                closest = len(self.blocks)
+                # closest_dis = last_dis
 
         self.set_cursor([closest])
         print(f"closest = {closest}")
