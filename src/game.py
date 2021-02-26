@@ -111,6 +111,8 @@ texture_res = 32
 robot_atlas: pygame.Surface = load_extended("res/textures/robot.png")
 robot_res = 64
 robot_ground = 48
+click_threshold = 150
+step_delay = 500
 
 # Each sprite uses a different dark colour against white bold text, and
 # two adjacent sprites have very distinct colours. This was made with
@@ -158,11 +160,19 @@ class Level:
                 dest = (j * texture_res, i * texture_res)
                 self.level_map.blit(texture_atlas, dest, area)
 
+    def get_block(self, x: int, y: int) -> int:
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return 0
+        return self.map[y][x]
+
 
 class Game:
     def __init__(self):
         # Code
         self.code = None
+        self.gen = None
+        self.steps = 1
+        self.code_start = 0
         # Blocks (source)
         self.blocks = []
         # UI interactions
@@ -252,7 +262,7 @@ class Game:
                 if self.code.elem.rect.collidepoint(mpos):
                     print("Block placed")
                     self.code.place_block(self.block_dragged)
-                if click_duration < 150:
+                if click_duration < click_threshold:
                     print("Clicked")
                     self.code.place_block(self.block_dragged)
                     # self.move_bot(self.block_dragged.name)
@@ -273,9 +283,19 @@ class Game:
         if not self.enabled:
             return
         mpos = pygame.mouse.get_pos()
+        now = ticks.get_time()
         for b in self.blocks:
             b.update()
         self.code.update()
+        if self.gen is not None:
+            if self.steps * step_delay < now - self.code_start:
+                try:
+                    move = next(self.gen)
+                    self.move_bot(move)
+                    self.steps += 1
+                except StopIteration:
+                    self.gen = None
+
         if self.click_start > -1:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 1:
@@ -284,7 +304,7 @@ class Game:
                 n_pitch = (mpos[1] - self.click_start_pos[1]) / 400 + self.old_view[1]
                 self.update_position(n_yaw, n_pitch, None)
             elif self.click_type == 2:
-                if click_duration >= 150:
+                if click_duration >= click_threshold:
                     self.block_dragged: Codeblock
                     self.block_dragged.pos = pygame.Rect(
                         mpos[0] - self.block_offset[0],
@@ -311,26 +331,17 @@ class Game:
         if zoom:
             self.zoom = zoom
 
-    def draw(self, screen: pygame.Surface):
-        if not self.enabled:
-            return
-        self.code.render(screen)
-        self.render_scene(screen)
-        for b in self.blocks:
-            b: Blocklist
-            b.draw(screen)
-        if self.click_start > -1:
-            # mpos = pygame.mouse.get_pos()
-            click_duration = ticks.get_time() - self.click_start
-            if self.click_type == 2:
-                if click_duration >= 150:
-                    self.block_dragged: Codeblock
-                    self.block_dragged.draw(screen)
-            elif self.click_type == 3:
-                self.block_dragged: Codeblock
-                self.block_dragged.draw(screen)
+    def run_code(self):
+        self.code_start = ticks.get_time()
+        self.gen = self.code.exec()
+        self.steps = 1
+
+        self.robot_x = self.level.start_x
+        self.robot_y = self.level.start_y
+        self.robot_dir = self.level.start_dir
 
     def move_bot(self, move):
+        old_pos = self.robot_x, self.robot_y
         if move == "forward":
             pos_offset = (
                 (0, -1),
@@ -344,6 +355,34 @@ class Game:
             self.robot_dir = (self.robot_dir + 1) % 4
         elif move == "right":
             self.robot_dir = (self.robot_dir - 1) % 4
+
+        block = self.level.get_block(self.robot_x, self.robot_y)
+        if block == 0:
+            self.robot_x, self.robot_y = old_pos
+        elif block == 1:
+            print("Died!")
+            self.gen = None
+        elif block == 3:
+            print("Win!")
+
+    def draw(self, screen: pygame.Surface):
+        if not self.enabled:
+            return
+        self.code.render(screen)
+        self.render_scene(screen)
+        for b in self.blocks:
+            b: Blocklist
+            b.draw(screen)
+        if self.click_start > -1:
+            # mpos = pygame.mouse.get_pos()
+            click_duration = ticks.get_time() - self.click_start
+            if self.click_type == 2:
+                if click_duration >= click_threshold:
+                    self.block_dragged: Codeblock
+                    self.block_dragged.draw(screen)
+            elif self.click_type == 3:
+                self.block_dragged: Codeblock
+                self.block_dragged.draw(screen)
 
     def render_scene(self, screen: pygame.Surface):
         # Transform axis vectors
@@ -511,7 +550,12 @@ class Code:
         pass
 
     def exec(self):
-        pass
+        for b in self.blocks:
+            b: Codeblock
+            yield b.name
 
-    def step(self):
-        pass
+    # def reset(self):
+    #     pass
+    #
+    # def step(self):
+    #     pass

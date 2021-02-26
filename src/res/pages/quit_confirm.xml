@@ -21,9 +21,9 @@
         <horizontal align="centre">
             <space length="30%"/>
             <vertical align="up">
-                <button length="min" margin="5px" on_click="start">title.start_game</button>
-                <button length="min" margin="5px" on_click="lang">title.languages</button>
-                <button length="min" margin="5px" on_click="exit">title.quit</button>
+                <button length="min" margin="5px" on_click="start" align="centre">title.start_game</button>
+                <button length="min" margin="5px" on_click="lang" align="centre">title.languages</button>
+                <button length="min" margin="5px" on_click="exit" align="centre">title.quit</button>
             </vertical>
             <space length="30%"/>
         </horizontal>
@@ -36,8 +36,8 @@
                     <horizontal length="30%" align="centre">
                         <text colour="#FFFFFFFF" length="min">quit.confirm</text>
                     </horizontal>
-                    <button length="min" margin="10px" colour="#FF0000FF" on_click="quit">quit.y</button>
-                    <button length="min" margin="10px" colour="#00FF00FF" on_click="cancel_quit">quit.n</button>
+                    <button length="min" margin="10px" colour="#FF0000FF" on_click="quit" align="centre">quit.y</button>
+                    <button length="min" margin="10px" colour="#00FF00FF" on_click="cancel_quit" align="centre">quit.n</button>
                 </vertical>
             </overlap>
         </horizontal>

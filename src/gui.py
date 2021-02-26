@@ -365,7 +365,17 @@ class Image(Element):
 
 
 class Button(Element):
+    def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
+        super().__init__(document, tag, attrs)
+
+        if "align" in self.attrs:
+            self.align = self.attrs["align"]
+        else:
+            self.align = "left"
+
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        font_width = _font.size(languages.get_str(self.data))[0]
+        gap = self.rect.w - font_width - 20
         if self.colour:
             if self == document.hover_element:
                 fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x000000FF)
@@ -377,7 +387,14 @@ class Button(Element):
             else:
                 fill_rect(screen, self.rect, 0x0000007F)
         draw_box(screen, self.rect, 0x000000FF, True)
-        draw_text(screen, self.rect, languages.get_str(self.data), 0xFFFFFFFF)
+        if self.align == "left":
+            draw_text(screen, self.rect, languages.get_str(self.data), 0xFFFFFFFF)
+        elif self.align == "rigth":
+            r = pygame.Rect(self.rect.x + gap, self.rect.y, 0, 0)
+            draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
+        elif self.align == "centre" or self.align == "center":
+            r = pygame.Rect(self.rect.x + gap / 2, self.rect.y, 0, 0)
+            draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
 
     @add_margin
     def get_min(self) -> pygame.Rect:

@@ -3,6 +3,8 @@ import ticks
 import gui
 import languages
 import game
+
+
 # import math
 
 
@@ -93,6 +95,11 @@ def back_level_select(_: gui.Element):
     main_game.disable()
 
 
+def exec_code(_: gui.Element):
+    print("Exec")
+    main_game.run_code()
+
+
 uis = {
     "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
     "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
@@ -117,6 +124,7 @@ ui_callbacks = {
     },
     "level": {
         "back": back_level_select,
+        "play": exec_code,
     },
     "quit": {
         "quit": game_quit,

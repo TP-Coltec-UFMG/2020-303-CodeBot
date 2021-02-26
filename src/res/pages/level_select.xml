@@ -6,7 +6,7 @@
             <button id="level1" length="min" margin="5px" on_click="level">levels.level1</button>
 <!--            <button id="level2" length="min" margin="5px" on_click="level">levels.level2</button>-->
         </vertical>
-        <button length="min" margin="10px" on_click="back">levels.back</button>
+        <button length="min" margin="10px" on_click="back" align="centre">levels.back</button>
     </vertical>
     <space length="10%"/>
 </horizontal>

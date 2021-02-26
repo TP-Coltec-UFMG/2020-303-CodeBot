@@ -5,7 +5,7 @@
         <vertical id="lang_list" colour="#0000007F" align="up">
 <!--            Languages are dinamically added here...-->
         </vertical>
-        <button length="min" margin="10px" on_click="back">lang.back</button>
+        <button length="min" margin="10px" on_click="back" align="centre">lang.back</button>
     </vertical>
     <space length="10%"/>
 </horizontal>

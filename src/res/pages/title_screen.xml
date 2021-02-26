@@ -21,10 +21,10 @@
         <horizontal align="centre">
             <space length="30%"/>
             <vertical align="up">
-                <button length="min" margin="5px" on_click="start">title.start_game</button>
+                <button length="min" margin="5px" on_click="start" align="centre">title.start_game</button>
 <!--                <button length="min" margin="5px" on_click="lang">title.options</button>-->
-                <button length="min" margin="5px" on_click="lang">title.languages</button>
-                <button length="min" margin="5px" on_click="exit">title.quit</button>
+                <button length="min" margin="5px" on_click="lang" align="centre">title.languages</button>
+                <button length="min" margin="5px" on_click="exit" align="centre">title.quit</button>
             </vertical>
             <space length="30%"/>
         </horizontal>

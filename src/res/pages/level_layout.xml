@@ -11,6 +11,14 @@
                         hover_colour="#FFFFFF3F">
                     res/textures/go_back.png
                 </image>
+                <image
+                        align="right"
+                        smooth="True"
+                        margin="5px"
+                        on_click="play"
+                        hover_colour="#FFFFFF3F">
+                    res/textures/play_btn.png
+                </image>
             </horizontal>
             <space id="code"/>
         </vertical>
