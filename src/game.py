@@ -134,8 +134,9 @@ class SlicedSprite:
 texture_atlas: pygame.Surface = load_extended("res/textures/atlas.png")
 texture_res = 32
 robot_atlas: pygame.Surface = load_extended("res/textures/robot.png")
-robot_res = 64
-robot_ground = 48
+coin_atlas: pygame.Surface = load_extended("res/textures/coin.png")
+entity_res = 64
+entity_ground = 48
 click_threshold = 150
 step_delay = 200
 cursor_h = 16
@@ -184,6 +185,10 @@ class Level:
         self.start_y = player["start-y"]
         self.start_dir = player["start-dir"]
 
+        stars = data["stars"]
+        self.min_coins = stars["coins"]
+        self.min_blocks = stars["blocks"]
+
         # Level number
         self.number = data["number"]
 
@@ -224,13 +229,17 @@ class Game:
         self.elem = None  # Container for rendering game scene
         self.level = None  # Current level object
         self.enabled = False  # false = in title screen
+        self.coins = []
         # Game
         self.robot_x = 0
         self.robot_y = 0
         self.robot_dir = 0
         # Levels
-        self.unlocked_level = 1
         self.won = False
+        self.coin_counter = 0
+        # Level stats
+        self.unlocked_level = 1
+        self.levels = []
 
     def enable(self, document: gui.DocumentXML, level: Level, screen: pygame.Surface):
         self.elem = document.ids["game"]
@@ -251,6 +260,13 @@ class Game:
         btnlist: gui.Element = document.ids["blocklist"]
         btnlist.children.clear()
         self.blocks = []
+
+        self.coins = []
+        for i, row in enumerate(self.level.map):
+            for j, col in enumerate(row):
+                if col == 4:
+                    self.coins.append((j, i))
+
         for i, b in enumerate(level.blocks):
             block = defined_blocks[b]
             self.blocks.append(Blocklist(document, *block))
@@ -265,6 +281,7 @@ class Game:
         self.level = None
         self.enabled = False
         self.won = False
+        self.gen = None
         self.blocks = []
 
     def handle_event(self, _: pygame.Surface, event: pygame.event.Event):
@@ -330,6 +347,20 @@ class Game:
         self.gen = None
         self.won = True
 
+        level_stats = (
+            True,
+            self.code.get_block_count() <= self.level.min_blocks,
+            self.coin_counter >= self.level.min_coins
+        ).count(True)
+        level_idx = self.level.number - 1
+        if level_idx < len(self.levels):
+            self.levels[level_idx] = max(level_stats, self.levels[level_idx])
+        elif level_idx == len(self.levels):
+            self.levels.append(level_stats)
+
+        print(f"{self.code.get_block_count()} <> {self.level.min_blocks}")
+        print(f"{self.coin_counter} <> {self.level.min_coins}")
+
     def update(self):
         if not self.enabled:
             return
@@ -344,8 +375,6 @@ class Game:
                     move = next(self.gen)
                     self.move_bot(move)
                     self.steps += 1
-                    if self.level.get_block(self.robot_x, self.robot_y) == 3:
-                        self.win()
                 except StopIteration:
                     self.gen = None
         if self.won:
@@ -398,6 +427,12 @@ class Game:
         self.robot_dir = self.level.start_dir
 
         self.won = False
+        self.coins = []
+        self.coin_counter = 0
+        for i, row in enumerate(self.level.map):
+            for j, col in enumerate(row):
+                if col == 4:
+                    self.coins.append((j, i))
 
     def move_bot(self, move):
         old_pos = self.robot_x, self.robot_y
@@ -416,13 +451,23 @@ class Game:
             self.robot_dir = (self.robot_dir - 1) % 4
 
         block = self.level.get_block(self.robot_x, self.robot_y)
+
+        collected = None
+        for c in self.coins:
+            if (self.robot_x, self.robot_y) == c:
+                collected = c
+        if collected is not None:
+            self.coins.remove(collected)
+            self.coin_counter += 1
+
         if block == 0:
             self.robot_x, self.robot_y = old_pos
         elif block == 1:
             print("Died!")
             self.gen = None
         elif block == 3:
-            print("Win!")
+            print(f"Win!")
+            self.win()
 
     def draw(self, screen: pygame.Surface):
         if not self.enabled:
@@ -466,24 +511,53 @@ class Game:
         pos_x = self.elem.rect.x + (self.elem.rect.w / 2)
         pos_y = self.elem.rect.y + (self.elem.rect.h / 2)
         # Scale robot sprite
-        robot_pos_real = (self.robot_x - self.level.width / 2 + .5, self.robot_y - self.level.height / 2 + .5)
-        robot_pos = x_axis * robot_pos_real[0] + y_axis * robot_pos_real[1] + pygame.math.Vector2(pos_x, pos_y)
         angle = ((self.yaw + self.robot_dir * math.pi / 2 + math.pi * 9 / 8) % (math.pi * 2)) * 8 / (math.pi * 2)
         bot_render = robot_atlas.subsurface(
             pygame.Rect(
-                int(angle) * robot_res,
+                int(angle) * entity_res,
                 0,
-                robot_res,
-                robot_res
+                entity_res,
+                entity_res
             )
         ).copy()
-        bot_render = pygame.transform.rotozoom(bot_render, 0, self.zoom / 2)
+        coin_state = int(ticks.get_time() / 250) % 4
+        coin_render = coin_atlas.subsurface(
+            pygame.Rect(
+                coin_state * entity_res,
+                0,
+                entity_res,
+                entity_res
+            )
+        ).copy()
+        # Entities
+        entities = []
+        for c in self.coins:
+            entities.append(
+                (pygame.transform.rotozoom(coin_render, 0, self.zoom / 2), *c)
+            )
+        entities.append((
+            pygame.transform.rotozoom(bot_render, 0, self.zoom / 2),
+            self.robot_x,
+            self.robot_y,
+        ))
+        to_render = []
+        for e in entities:
+            ent_pos_real = (e[1] - self.level.width / 2 + .5, e[2] - self.level.height / 2 + .5)
+            ent_pos = x_axis * ent_pos_real[0] + y_axis * ent_pos_real[1] + pygame.math.Vector2(pos_x, pos_y)
+            to_render.append((e[0], ent_pos.x, ent_pos.y))
+        to_render.sort(key=lambda x: x[2])
         # Rendering
         screen.blit(map_render, (pos_x - map_render.get_width() / 2, pos_y - map_render.get_height() / 2))
-        screen.blit(
-            bot_render,
-            (robot_pos.x - (robot_res * self.zoom) / 4, robot_pos.y - (robot_ground * self.zoom) / 2)
-        )
+        # screen.blit(
+        #     bot_render,
+        #     (robot_pos.x - (robot_res * self.zoom) / 4, robot_pos.y - (robot_ground * self.zoom) / 2)
+        # )
+        for e in to_render:
+            # print(e)
+            screen.blit(
+                e[0],
+                (e[1] - (entity_res * self.zoom) / 4, e[2] - (entity_ground * self.zoom) / 2)
+            )
 
 
 # Source of blocks, from which they spawn and get dragged out of
@@ -583,6 +657,15 @@ class CodeContainer(Codeblock):
             0xFFFFFFFF,
             _font_code
         )
+
+    def get_block_count(self):
+        count = 0
+        for b in self.children:
+            if type(b) is CodeContainer:
+                b: CodeContainer
+                count += b.get_block_count()
+            count += 1
+        return count
 
     def update(self, cursors, off: tuple):
         current_y = 0
@@ -699,6 +782,15 @@ class Code:
         self.elem: gui.Element = document.ids["code"]
         self.blocks = []
         self.cursors = [0]  # For nested blocks
+
+    def get_block_count(self):
+        count = 0
+        for b in self.blocks:
+            if type(b) is CodeContainer:
+                b: CodeContainer
+                count += b.get_block_count()
+            count += 1
+        return count
 
     def place_block(self, block: Codeblock):
         context = self.blocks

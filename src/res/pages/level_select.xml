@@ -3,7 +3,18 @@
     <vertical>
         <text colour="#FFFFFFFF" length="min">levels.title</text>
         <vertical id="level_list" colour="#0000007F" align="up">
-<!--            <button id="level1" length="min" margin="5px" on_click="level">levels.level1</button>-->
+<!--            <horizontal id="level1_stars" length="min" margin="5px">-->
+<!--                <button id="level1" on_click="level">levels.level1</button>-->
+<!--                <image align="centre" smooth="True" margin="5px" length="10%" id="star1">-->
+<!--                    res/textures/star_empty.png-->
+<!--                </image>-->
+<!--                <image align="centre" smooth="True" margin="5px" length="10%" id="star2">-->
+<!--                    res/textures/star_empty.png-->
+<!--                </image>-->
+<!--                <image align="centre" smooth="True" margin="5px" length="10%" id="star3">-->
+<!--                    res/textures/star_empty.png-->
+<!--                </image>-->
+<!--            </horizontal>-->
 <!--            <button id="level2" length="min" margin="5px" on_click="level">levels.level2</button>-->
         </vertical>
         <button length="min" margin="10px" on_click="back" align="centre">levels.back</button>
