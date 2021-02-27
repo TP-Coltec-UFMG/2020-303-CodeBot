@@ -168,7 +168,7 @@ def main():
     clk = pygame.time.Clock()
     gui.init()
     game.init()
-    languages.load("res/lang/en-gb.yaml")
+    languages.load("res/lang/pt-br.yaml")
     change_document("title")
 
     while True:
