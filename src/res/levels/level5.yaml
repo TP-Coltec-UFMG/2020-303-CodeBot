@@ -1,0 +1,20 @@
+number: 5
+stars:
+  coins: 8
+  blocks: 6
+blocks:
+  - left
+  - forward
+  - right
+  - repeat4
+  - repeat8
+map:
+  - [4, 3, 2, 2, 4]
+  - [2, 1, 4, 1, 2]
+  - [2, 4, 2, 4, 2]
+  - [2, 1, 4, 1, 2]
+  - [4, 2, 2, 2, 4]
+player:
+  start-x: 2
+  start-y: 2
+  start-dir: 0
