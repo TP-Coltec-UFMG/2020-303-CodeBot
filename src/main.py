@@ -3,6 +3,7 @@ import ticks
 import gui
 import languages
 import game
+import os
 
 
 # import math
@@ -30,14 +31,48 @@ def title_start(_: gui.Element):
     for i in range(main_game.unlocked_level):
         if i == len(levels):
             break
+        if len(main_game.levels) <= i:
+            stars = 0
+        else:
+            stars = main_game.levels[i]
+        print(stars)
+
         button = gui.Button(ui, "button", {
             "id": levels[i],
-            "length": "min",
-            "margin": "5px",
             "on_click": "level",
         })
         button.data = f"levels.{levels[i]}"
-        lvl_list.add_child(button)
+
+        horiz = gui.Horizontal(ui, "horizontal", {
+            "id": "level1_stars",
+            "length": "min",
+            "margin": "5px"
+        })
+        horiz.add_child(button)
+        for j in range(3):
+            if stars > j:
+                filled_star = gui.Image(ui, "image", {
+                    "align": "centre",
+                    "smooth": "True",
+                    "margin": "5px",
+                    "length": "10%",
+                    "id": f"star{j + 1}"
+                })
+                filled_star.data = "res/textures/star_full.png"
+                horiz.add_child(filled_star)
+                print("fill")
+            else:
+                empty_star = gui.Image(ui, "image", {
+                    "align": "centre",
+                    "smooth": "True",
+                    "margin": "5px",
+                    "length": "10%",
+                    "id": f"star{j + 1}"
+                })
+                empty_star.data = "res/textures/star_empty.png"
+                print("empty")
+                horiz.add_child(empty_star)
+        lvl_list.add_child(horiz)
     change_document("levels")
 
 
@@ -116,10 +151,7 @@ def exec_code(_: gui.Element):
 
 
 levels = [
-    "level1",
-    "level2",
-    "level3",
-    "level4",
+    lvl[:-5] for lvl in os.listdir("res/levels")
 ]
 uis = {
     "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
