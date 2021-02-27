@@ -7,6 +7,8 @@ levels:
   title: "Selecciona un nivel para jugar"
   level1: "Nivel 1"
   level2: "Nivel 2"
+  level3: "Nivel 3"
+  level4: "Nivel 4"
   back: "Regresar"
 lang:
   title: "Seleccione su idioma"

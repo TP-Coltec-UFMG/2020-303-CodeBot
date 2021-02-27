@@ -23,6 +23,21 @@ def change_document(name):
 # Callbacks:
 def title_start(_: gui.Element):
     print("Game start!")
+    main_game.disable()
+    document = uis["levels"]
+    lvl_list: gui.Element = document.ids["level_list"]
+    lvl_list.children.clear()
+    for i in range(main_game.unlocked_level):
+        if i == len(levels):
+            break
+        button = gui.Button(ui, "button", {
+            "id": levels[i],
+            "length": "min",
+            "margin": "5px",
+            "on_click": "level",
+        })
+        button.data = f"levels.{levels[i]}"
+        lvl_list.add_child(button)
     change_document("levels")
 
 
@@ -100,6 +115,12 @@ def exec_code(_: gui.Element):
     main_game.run_code()
 
 
+levels = [
+    "level1",
+    "level2",
+    "level3",
+    "level4",
+]
 uis = {
     "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
     "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
@@ -123,7 +144,7 @@ ui_callbacks = {
         "select": lang_select
     },
     "level": {
-        "back": back_level_select,
+        "back": title_start,
         "play": exec_code,
     },
     "quit": {
@@ -147,7 +168,7 @@ def main():
     clk = pygame.time.Clock()
     gui.init()
     game.init()
-    languages.load("res/lang/none.yaml")
+    languages.load("res/lang/en-gb.yaml")
     change_document("title")
 
     while True:

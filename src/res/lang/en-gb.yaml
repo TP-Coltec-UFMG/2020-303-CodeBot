@@ -7,17 +7,21 @@ levels:
   title: "Select a level to play"
   level1: "Level 1"
   level2: "Level 2"
+  level3: "Level 3"
+  level4: "Level 4"
   back: "Back to title"
 lang:
   title: "Select your language"
   back: "Back to title"
 level:
   back: "Exit"
+  win: "You win!"
   blocks:
     forward: "move()"
     left: "left()"
     right: "right()"
-    repeat: "for () {}"
+    repeat4: "repeat 4"
+    repeat8: "repeat 8"
 quit:
   y: "Yes, I want to quit"
   n: "No"

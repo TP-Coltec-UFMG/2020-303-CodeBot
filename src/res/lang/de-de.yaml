@@ -7,6 +7,8 @@ levels:
   title: "Wählen Sie ein Niveau aus"
   level1: "Niveau 1"
   level2: "Niveau 2"
+  level3: "Niveau 3"
+  level4: "Niveau 4"
   back: "Zum titel zurückkommen"
 lang:
   title: "Sprache auswählen"

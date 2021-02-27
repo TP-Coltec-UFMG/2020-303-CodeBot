@@ -7,16 +7,21 @@ levels:
   title: "Selecione um nível para jogar"
   level1: "Nível 1"
   level2: "Nível 2"
+  level3: "Nível 3"
+  level4: "Nível 4"
   back: "Voltar ao título"
 lang:
   title: "Selecione seu idioma"
   back: "Voltar ao título"
 level:
   back: "Sair"
+  win: "Você ganhou!"
   blocks:
     forward: "andar()"
     left: "esquerda()"
     right: "direita()"
+    repeat4: "repetir 4"
+    repeat8: "repetir 8"
 quit:
   y: "Sim, quero sair"
   n: "Não"
