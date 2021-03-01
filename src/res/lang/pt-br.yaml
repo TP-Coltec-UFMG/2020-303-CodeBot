@@ -24,6 +24,7 @@ lang:
 level:
   back: "Sair"
   win: "Você ganhou!"
+  lose: "Você perdeu!"
   blocks:
     forward: "andar()"
     left: "esquerda()"

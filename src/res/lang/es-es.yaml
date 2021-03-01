@@ -24,6 +24,7 @@ lang:
 level:
   back: "Abandona el nivel"
   win: "¡Ganaste!"
+  lose: "¡Perdeste!"
   blocks:
     forward: "caminar()"
     left: "izquierda()"

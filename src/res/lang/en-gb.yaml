@@ -6,7 +6,7 @@ title:
   quit: "Quit to desktop"
 font_size:
   title: "Select font size"
-  min: "Mininum"
+  min: "Minimum"
   medium: "Medium"
   max: "Maximum"
 levels:
@@ -24,6 +24,7 @@ lang:
 level:
   back: "Exit"
   win: "You win!"
+  lose: "You lose!"
   blocks:
     forward: "move()"
     left: "left()"
