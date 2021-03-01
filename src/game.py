@@ -133,13 +133,13 @@ class SlicedSprite:
 
 texture_atlas: pygame.Surface = load_extended("res/textures/atlas.png")
 texture_res = 32
-robot_atlas: pygame.Surface = load_extended("res/textures/robot.png")
+robot_atlas: pygame.Surface = load_extended("res/textures/robot4.png")
 coin_atlas: pygame.Surface = load_extended("res/textures/coin.png")
 entity_res = 256
 entity_ground = 192
 click_threshold = 150
 step_delay = 200
-cursor_h = 16
+cursor_h = 32
 win_rot_speed = 0.03
 
 # Each sprite uses a different dark colour against white bold text, and
@@ -154,6 +154,7 @@ code_block_textures: list = [
     SlicedSprite(load_extended("res/textures/blocks/block_orange.png")),
     SlicedSprite(load_extended("res/textures/blocks/block_pink.png")),
 ]
+
 
 # container_block_textures: list = [
 #     SlicedSprite(load_extended("res/textures/blocks/block_red.png")),
@@ -235,7 +236,7 @@ class Game:
         self.robot_y = 0
         self.robot_dir = 0
         # Levels
-        self.won = False
+        self.state = 0
         self.coin_counter = 0
         # Level stats
         self.unlocked_level = 1
@@ -280,7 +281,7 @@ class Game:
         self.elem = None
         self.level = None
         self.enabled = False
-        self.won = False
+        self.state = 0
         self.gen = None
         self.blocks = []
 
@@ -323,29 +324,34 @@ class Game:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 2:
                 if self.code.elem.rect.collidepoint(mpos):
-                    print("Block placed")
+                    # print("Block placed")
                     self.code.place_block(self.block_dragged)
                 elif click_duration < click_threshold:
-                    print("Clicked")
+                    # print("Clicked")
                     self.code.place_block(self.block_dragged)
                     # self.move_bot(self.block_dragged.name)
                 else:
-                    print(f"Dropped ({click_duration})")
+                    pass
+                    # print(f"Dropped ({click_duration})")
             elif self.click_type == 3:
                 if self.code.elem.rect.collidepoint(mpos):
-                    print("Block placed")
+                    # print("Block placed")
                     self.code.place_block(self.block_dragged)
-                print(f"Dropped ({click_duration})")
+                # print(f"Dropped ({click_duration})")
             self.click_type = 0
             self.click_start = -1
         elif event.type == pygame.VIDEORESIZE:
             lvl_size = max(self.level.width, self.level.height) * texture_res
             self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
 
+    def lose(self):
+        self.gen = None
+        self.state = 2
+
     def win(self):
         self.unlocked_level = max(self.unlocked_level, self.level.number + 1)
         self.gen = None
-        self.won = True
+        self.state = 1
 
         level_stats = (
             True,
@@ -358,8 +364,8 @@ class Game:
         elif level_idx == len(self.levels):
             self.levels.append(level_stats)
 
-        print(f"{self.code.get_block_count()} <> {self.level.min_blocks}")
-        print(f"{self.coin_counter} <> {self.level.min_coins}")
+        # print(f"{self.code.get_block_count()} <> {self.level.min_blocks}")
+        # print(f"{self.coin_counter} <> {self.level.min_coins}")
 
     def update(self):
         if not self.enabled:
@@ -377,7 +383,7 @@ class Game:
                     self.steps += 1
                 except StopIteration:
                     self.gen = None
-        if self.won:
+        if self.state > 0:
             self.update_position(self.yaw + win_rot_speed)
         if self.click_start > -1:
             click_duration = ticks.get_time() - self.click_start
@@ -386,7 +392,7 @@ class Game:
                 n_yaw = (mpos[0] - self.click_start_pos[0]) / 100 + self.old_view[0]
                 n_pitch = (mpos[1] - self.click_start_pos[1]) / 400 + self.old_view[1]
                 self.update_position(n_yaw, n_pitch, None)
-                self.won = False
+                # self.state = 0
             elif self.click_type == 2:
                 if click_duration >= click_threshold:
                     self.block_dragged: Codeblock
@@ -426,7 +432,7 @@ class Game:
         self.robot_y = self.level.start_y
         self.robot_dir = self.level.start_dir
 
-        self.won = False
+        self.state = 0
         self.coins = []
         self.coin_counter = 0
         for i, row in enumerate(self.level.map):
@@ -463,10 +469,10 @@ class Game:
         if block == 0:
             self.robot_x, self.robot_y = old_pos
         elif block == 1:
-            print("Died!")
-            self.gen = None
+            # print("Died!")
+            self.lose()
         elif block == 3:
-            print(f"Win!")
+            # print(f"Win!")
             self.win()
 
     def draw(self, screen: pygame.Surface):
@@ -487,8 +493,13 @@ class Game:
             elif self.click_type == 3:
                 self.block_dragged: Codeblock
                 self.block_dragged.draw(screen)
-        if self.won:
+        if self.state == 1:
             text = languages.get_str("level.win")
+            text_width = _font_victory.size(text)[0]
+            pos = pygame.Rect(self.elem.rect.x + (self.elem.rect.w - text_width) / 2, 10, 0, 0)
+            draw_text(screen, pos, text, 0xFF00FFFF, _font_victory)
+        elif self.state == 2:
+            text = languages.get_str("level.lose")
             text_width = _font_victory.size(text)[0]
             pos = pygame.Rect(self.elem.rect.x + (self.elem.rect.w - text_width) / 2, 10, 0, 0)
             draw_text(screen, pos, text, 0xFF00FFFF, _font_victory)
@@ -533,10 +544,10 @@ class Game:
         entities = []
         for c in self.coins:
             entities.append(
-                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res/32)), *c)
+                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res / 32)), *c)
             )
         entities.append((
-            pygame.transform.rotozoom(bot_render, 0, self.zoom /(entity_res/32)),
+            pygame.transform.rotozoom(bot_render, 0, self.zoom / (entity_res / 32)),
             self.robot_x,
             self.robot_y,
         ))
@@ -698,7 +709,7 @@ class CodeContainer(Codeblock):
             b: Codeblock
             if cursors is not None and len(cursors) > 0 and cursors[0] == i:
                 if len(cursors) == 1:
-                    fill_rect(screen, pygame.Rect(off[0], off[1] + current_y, 1000, cursor_h), 0xFFFFFF3F)
+                    fill_rect(screen, pygame.Rect(off[0], off[1] + current_y, 1000, cursor_h), 0xFFFFFF1F)
                     current_y += cursor_h
                 n_off = (off[0], off[1] + current_y)
                 if type(b) is CodeContainer:
@@ -706,7 +717,7 @@ class CodeContainer(Codeblock):
                     b.draw_cursor(screen, cursors[1:], n_off)
             current_y += b.get_box().h
         if cursors is not None and len(cursors) > 0 and cursors[0] == len(self.children):
-            fill_rect(screen, pygame.Rect(off[0], off[1] + current_y, 1000, cursor_h), 0xFFFFFF3F)
+            fill_rect(screen, pygame.Rect(off[0], off[1] + current_y, 1000, cursor_h), 0xFFFFFF1F)
             current_y += cursor_h
 
     def trace_block(self, pos: tuple, off: tuple):
@@ -732,8 +743,8 @@ class CodeContainer(Codeblock):
             self.pos.x + off.x,
             self.pos.y + 32 + size[1] + off.y
         ).distance_squared_to(vpos)
-        print("== nested CLOSEST ==")
-        print(f"root{stack}.dis = {closest_dis}")
+        # print("== nested CLOSEST ==")
+        # print(f"root{stack}.dis = {closest_dis}")
         for i, b in enumerate(self.children):
             b: Codeblock
             block_pos = (b.pos.x + off.x, b.pos.y + off.y)
@@ -747,7 +758,7 @@ class CodeContainer(Codeblock):
                 if this_dis < closest_dis:
                     closest = this_cur
                     closest_dis = this_dis
-            print(f"block{[*stack, i]}.dis = {this_dis}")
+            # print(f"block{[*stack, i]}.dis = {this_dis}")
         if len(self.children) > 0:
             last_b = self.children[-1]
             block_pos = (last_b.pos.x + off.x, last_b.pos.y + off.y + last_b.get_box().h)
@@ -757,7 +768,7 @@ class CodeContainer(Codeblock):
                 closest_dis = last_dis
 
         # self.set_cursor(closest)
-        print(f"closest = {closest}")
+        # print(f"closest = {closest}")
         return closest, closest_dis
 
     def get_box(self, off: tuple = (0, 0)) -> pygame.Rect:
@@ -808,7 +819,7 @@ class Code:
             context = context[c].children
         if index[-1] < self.cursors[-1]:
             self.cursors[-1] -= 1
-        print(index)
+        # print(index)
         context.pop(index[-1])
 
     def trace_block(self, pos: tuple):
@@ -831,7 +842,7 @@ class Code:
         vpos = pygame.Vector2(pos)
         closest = [0]
         closest_dis = None
-        print(" == CLOSEST ==")
+        # print(" == CLOSEST ==")
         for i, b in enumerate(self.blocks):
             b: Codeblock
             block_pos = (b.pos.x + self.elem.rect.x, b.pos.y + self.elem.rect.y)
@@ -839,7 +850,7 @@ class Code:
             if closest_dis is None or this_dis < closest_dis:
                 closest = [i]
                 closest_dis = this_dis
-            print(f"block{[i]}.dis = {this_dis}")
+            # print(f"block{[i]}.dis = {this_dis}")
             if type(b) is CodeContainer:
                 b: CodeContainer
                 this_cur, this_dis = b.cursor_closest(pos, self.elem.rect, [i])
@@ -855,7 +866,7 @@ class Code:
                 closest_dis = last_dis
 
         self.set_cursor(closest)
-        print(f"closest = {closest}")
+        # print(f"closest = {closest}")
         return closest, closest_dis
 
     def update(self):
@@ -879,14 +890,14 @@ class Code:
             b: Codeblock
             if i == self.cursors[0]:
                 if len(self.cursors) == 1:
-                    fill_rect(screen, pygame.Rect(0, current_y, 1000, cursor_h), 0xFFFFFF3F)
+                    fill_rect(screen, pygame.Rect(0, current_y, 1000, cursor_h), 0xFFFFFF1F)
                     current_y += cursor_h
                 if type(b) is CodeContainer:
                     b: CodeContainer
                     b.draw_cursor(screen, self.cursors[1:], (0, current_y))
             current_y += b.get_box().h
         if self.cursors is not None and len(self.cursors) > 0 and self.cursors[0] == len(self.blocks):
-            fill_rect(screen, pygame.Rect(0, current_y, 1000, cursor_h), 0xFFFFFF3F)
+            fill_rect(screen, pygame.Rect(0, current_y, 1000, cursor_h), 0xFFFFFF1F)
             current_y += cursor_h
 
     def set_cursor(self, path: list):
