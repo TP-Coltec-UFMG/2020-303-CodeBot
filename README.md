@@ -1,13 +1,20 @@
 # CodeBot
 ![Language/biblioteca](https://img.shields.io/badge/Python-pygames-orange)
-![Licence](https://img.shields.io/badge/Licence-MIT-blue)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 <p align="center">
   <img src="https://github.com/TP-Coltec-UFMG/codebot/blob/release-01/wiki-imgs/menu.png" alt="Menu inicial" width="500">
 </p>
 <p align="center">Jogo educativo e acessível para auxiliar no aprendizado da programação.</p>
 
-Ele vem equipado com um sistema de escolha de idiomas (para maior acessibilidade), além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco.
+## O que é o CodeBot?
+Jogo com o intuito de levar os jogadores a desenvolverem e/ou aprimorarem a sua capacidade lógica, o CodeBot utiliza conceitos de programação em blocos que torna mas abstrato os conceitos de programação, permitindo que qualquer pessoa jogue o jogo sem a necessidade de conhecimentos prévios.
+
+## Programação em blocos
+
+
+
+O CodeBot vem equipado com um sistema de escolha de idiomas (para maior acessibilidade), além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco.
 
 ## Grupo:
 - [Edson Paschoal](https://github.com/sshEdd1e)
@@ -63,3 +70,5 @@ $ python --version
 ```
 
 ---
+## Licença
+[MIT License](./LICENSE) © [CodeBot](https://github.com/TP-Coltec-UFMG/CodeBot)
