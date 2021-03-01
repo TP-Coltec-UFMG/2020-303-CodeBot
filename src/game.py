@@ -239,7 +239,7 @@ class Game:
         self.state = 0
         self.coin_counter = 0
         # Level stats
-        self.unlocked_level = 5
+        self.unlocked_level = 1
         self.levels = []
 
     def enable(self, document: gui.DocumentXML, level: Level, screen: pygame.Surface):
