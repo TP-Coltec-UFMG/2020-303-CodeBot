@@ -1,8 +1,14 @@
 lang_name: "English (UK)"
 title:
   start_game: "Start game"
+  options: "Options"
   languages: "Languages"
   quit: "Quit to desktop"
+font_size:
+  title: "Select font size"
+  min: "Mininum"
+  medium: "Medium"
+  max: "Maximum"
 levels:
   title: "Select a level to play"
   level1: "Level 1"
@@ -14,7 +20,7 @@ levels:
   back: "Back to title"
 lang:
   title: "Select your language"
-  back: "Back to title"
+  back: "Back to options"
 level:
   back: "Exit"
   win: "You win!"
@@ -24,6 +30,12 @@ level:
     right: "right()"
     repeat4: "repeat 4"
     repeat8: "repeat 8"
+options: 
+  title: "Options"
+  languages: "Languages"
+  font_size: "Font size"
+  back: "Back to title"
+
 quit:
   y: "Yes, I want to quit"
   n: "No"

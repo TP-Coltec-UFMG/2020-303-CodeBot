@@ -1,8 +1,14 @@
 lang_name: "Español (ES)"
 title:
   start_game: "Jugar"
+  options: "Opciones"
   languages: "Idiomas"
   quit: "Abandonar el juego"
+font_size:
+  title: "Selecciona el tamaño da la fuente"
+  min: "Mínimo"
+  medium: "Médio"
+  max: "Máximo"
 levels:
   title: "Selecciona un nivel para jugar"
   level1: "Nivel 1"
@@ -17,10 +23,18 @@ lang:
   back: "Regresar"
 level:
   back: "Abandona el nivel"
+  win: "¡Ganaste!"
   blocks:
     forward: "caminar()"
     left: "izquierda()"
     right: "derecha()"
+    repeat4: "repetir 4"
+    repeat8: "repetir 8"  
+options: 
+  title: "Opciones"
+  languages: "Idiomas"
+  font_size: "Tamaño da la fuente"
+  back: "Regresar a opciones"
 quit:
   y: "Sí, quiero salir del juego."
   n: "No"

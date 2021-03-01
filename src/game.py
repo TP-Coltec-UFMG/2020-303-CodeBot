@@ -533,10 +533,10 @@ class Game:
         entities = []
         for c in self.coins:
             entities.append(
-                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res / 32)), *c)
+                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res/32)), *c)
             )
         entities.append((
-            pygame.transform.rotozoom(bot_render, 0, self.zoom / (entity_res / 32)),
+            pygame.transform.rotozoom(bot_render, 0, self.zoom /(entity_res/32)),
             self.robot_x,
             self.robot_y,
         ))

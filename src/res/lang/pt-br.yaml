@@ -1,8 +1,14 @@
 lang_name: "Português (BR)"
 title:
   start_game: "Jogar"
+  options: "Opções"
   languages: "Idiomas"
   quit: "Sair"
+font_size:
+  title: "Selecionar o tamanho"
+  min: "Mínimo"
+  medium: "Médio"
+  max: "Máximo"
 levels:
   title: "Selecione um nível para jogar"
   level1: "Nível 1"
@@ -24,6 +30,11 @@ level:
     right: "direita()"
     repeat4: "repetir 4"
     repeat8: "repetir 8"
+options: 
+  title: "Opções"
+  languages: "Idiomas"
+  font_size: "Tamanhos"
+  back: "Voltar"
 quit:
   y: "Sim, quero sair"
   n: "Não"
