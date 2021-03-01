@@ -6,9 +6,9 @@ import languages
 _font: pygame.font.Font
 
 
-def init():
+def init(font, size):
     global _font
-    _font = pygame.font.Font("res/font/JetBrainsMono-Regular.ttf", 30)
+    _font = pygame.font.Font(font, size)
 
 
 def debug(func: callable) -> callable:
@@ -18,7 +18,6 @@ def debug(func: callable) -> callable:
         print(f"Returned {ret} from {func.__name__}")
         return ret
     return wrapper
-
 
 def draw_margin(func: callable) -> callable:
     def wrapper(self: "Element", rect: pygame.Rect, document: "DocumentXML"):

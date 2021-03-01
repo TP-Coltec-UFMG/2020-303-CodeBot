@@ -2,6 +2,7 @@ import pygame
 import ticks
 import gui
 import languages
+import options
 import game
 import os
 
@@ -77,13 +78,19 @@ def title_start(_: gui.Element):
 
 
 def title_options(_: gui.Element):
-    print("Options screen (not implemented)!")
+    print("Options select!")
     change_document("options")
 
+
+def font_size_select(_: gui.Element):
+    print("Font size select!")
+    change_document("font_size")
 
 def title_lang(_: gui.Element):
     print("Language select!")
     document = uis["language"]
+    print('TESTE')
+    print(document.ids)
     lang_list: gui.Element = document.ids["lang_list"]
     lang_list.children.clear()
     for lang in languages.refresh():
@@ -149,12 +156,23 @@ def exec_code(_: gui.Element):
     print("Exec")
     main_game.run_code()
 
+def select_ft_max(_: gui.Element):
+    gui.init("res/font/JetBrainsMono-Regular.ttf",45)
+
+def select_ft_medium(_: gui.Element):
+    gui.init("res/font/JetBrainsMono-Regular.ttf",40)
+
+def select_ft_min(_: gui.Element):
+    gui.init("res/font/JetBrainsMono-Regular.ttf",30)
+
 
 levels = [
     lvl[:-5] for lvl in os.listdir("res/levels")
 ]
 uis = {
     "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
+    "options": gui.LoaderXML("res/pages/options_select.xml").get_document(),
+    "font_size": gui.LoaderXML("res/pages/font_size_select.xml").get_document(),
     "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
     "language": gui.LoaderXML("res/pages/language_select.xml").get_document(),
     "level": gui.LoaderXML("res/pages/level_layout.xml").get_document(),
@@ -167,13 +185,25 @@ ui_callbacks = {
         "lang": title_lang,
         "exit": title_quit,
     },
+    "options":{
+        "languages": title_lang,
+        "font_size": font_size_select,
+        "back": back_title,
+    },
+    "font_size":{
+        "font_size_min": select_ft_min,
+        "font_size_medium": select_ft_medium,
+        "font_size_max": select_ft_max,
+        "back": title_options
+    },
+   
     "levels": {
         "back": back_title,
         "level": level_select,
     },
     "language": {
-        "back": back_title,
-        "select": lang_select
+        "select": lang_select,
+        "back": title_options,
     },
     "level": {
         "back": title_start,
@@ -197,8 +227,9 @@ main_game = game.Game()
 
 
 def main():
+    pygame.display.set_caption('Code Bot')
     clk = pygame.time.Clock()
-    gui.init()
+    gui.init("res/font/JetBrainsMono-Regular.ttf", 30)
     game.init()
     languages.load("res/lang/pt-br.yaml")
     change_document("title")

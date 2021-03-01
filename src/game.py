@@ -135,8 +135,8 @@ texture_atlas: pygame.Surface = load_extended("res/textures/atlas.png")
 texture_res = 32
 robot_atlas: pygame.Surface = load_extended("res/textures/robot.png")
 coin_atlas: pygame.Surface = load_extended("res/textures/coin.png")
-entity_res = 256
-entity_ground = 192
+entity_res = 64
+entity_ground = 48
 click_threshold = 150
 step_delay = 200
 cursor_h = 16
@@ -533,10 +533,10 @@ class Game:
         entities = []
         for c in self.coins:
             entities.append(
-                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res / 32)), *c)
+                (pygame.transform.rotozoom(coin_render, 0, self.zoom / 2), *c)
             )
         entities.append((
-            pygame.transform.rotozoom(bot_render, 0, self.zoom / (entity_res / 32)),
+            pygame.transform.rotozoom(bot_render, 0, self.zoom / 2),
             self.robot_x,
             self.robot_y,
         ))
@@ -556,10 +556,7 @@ class Game:
             # print(e)
             screen.blit(
                 e[0],
-                (
-                    e[1] - (entity_res * self.zoom) / (entity_res / 16),
-                    e[2] - (entity_ground * self.zoom) / (entity_res / 32)
-                )
+                (e[1] - (entity_res * self.zoom) / 4, e[2] - (entity_ground * self.zoom) / 2)
             )
 
 
