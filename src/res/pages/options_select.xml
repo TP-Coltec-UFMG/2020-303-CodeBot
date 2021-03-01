@@ -3,8 +3,7 @@
     <vertical>
         <text colour="#FFFFFFFF" length="min">options.title</text>
 
-        <vertical id="options_list" colour="#0000007F" align="up">
-<!--            Languages are dinamically added here...-->
+        <vertical id="options_list" colour="#0000007F" align="up" scrollable="true">
             <button length="30%" margin="10px" on_click="languages" align="centre">options.languages</button>
             <button length="30%" margin="10px" on_click="font_size" align="centre">options.font_size</button>
         </vertical>

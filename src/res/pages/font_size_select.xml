@@ -3,8 +3,7 @@
     <vertical>
         <text colour="#FFFFFFFF" length="min">font_size.title</text>
 
-        <vertical id="options_list" colour="#0000007F" align="up">
-<!--            Languages are dinamically added here...-->
+        <vertical id="options_list" colour="#0000007F" align="up" scrollable="true">
             <button length="30%" margin="10px" on_click="font_size_min" align="centre">font_size.min</button>
             <button length="30%" margin="10px" on_click="font_size_medium" align="centre">font_size.medium</button>
             <button length="30%" margin="10px" on_click="font_size_max" align="centre">font_size.max</button>
