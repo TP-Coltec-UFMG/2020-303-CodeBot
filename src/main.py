@@ -1,10 +1,12 @@
+import os
+
 import pygame
-import ticks
+
+import game
 import gui
 import languages
-import options
-import game
-import os
+# import options
+import ticks
 
 
 # import math
@@ -19,12 +21,13 @@ def change_document(name):
         ui.calc_draw(screen.get_clip())
         ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
     else:
-        print("404 page not found.")
+        pass
+        # print("404 page not found.")
 
 
 # Callbacks:
 def title_start(_: gui.Element):
-    print("Game start!")
+    # print("Game start!")
     main_game.disable()
     document = uis["levels"]
     lvl_list: gui.Element = document.ids["level_list"]
@@ -36,7 +39,7 @@ def title_start(_: gui.Element):
             stars = 0
         else:
             stars = main_game.levels[i]
-        print(stars)
+        # print(stars)
 
         button = gui.Button(ui, "button", {
             "id": levels[i],
@@ -61,7 +64,7 @@ def title_start(_: gui.Element):
                 })
                 filled_star.data = "res/textures/star_full.png"
                 horiz.add_child(filled_star)
-                print("fill")
+                # print("fill")
             else:
                 empty_star = gui.Image(ui, "image", {
                     "align": "centre",
@@ -71,30 +74,31 @@ def title_start(_: gui.Element):
                     "id": f"star{j + 1}"
                 })
                 empty_star.data = "res/textures/star_empty.png"
-                print("empty")
+                # print("empty")
                 horiz.add_child(empty_star)
         lvl_list.add_child(horiz)
     change_document("levels")
 
 
 def title_options(_: gui.Element):
-    print("Options select!")
+    # print("Options select!")
     change_document("options")
 
 
 def font_size_select(_: gui.Element):
-    print("Font size select!")
+    # print("Font size select!")
     change_document("font_size")
 
+
 def title_lang(_: gui.Element):
-    print("Language select!")
+    # print("Language select!")
     document = uis["language"]
-    print('TESTE')
-    print(document.ids)
+    # print('TESTE')
+    # print(document.ids)
     lang_list: gui.Element = document.ids["lang_list"]
     lang_list.children.clear()
     for lang in languages.refresh():
-        print(lang)
+        # print(lang)
         name: str
         try:
             name = languages.get_name(lang)
@@ -116,54 +120,57 @@ def title_lang(_: gui.Element):
 
 
 def title_quit(_: gui.Element):
-    print("Exit!")
+    # print("Exit!")
     # pygame.event.post(pygame.event.Event(pygame.QUIT))
     change_document("quit")
 
 
 def game_quit(_: gui.Element):
-    print("Exit!")
+    # print("Exit!")
     pygame.event.post(pygame.event.Event(pygame.QUIT))
     # change_document("quit")
 
 
 def level_select(elem: gui.Element):
-    print(elem.id)
+    # print(elem.id)
     change_document("level")
     main_game.enable(ui, game.Level(f"res/levels/{elem.id}.yaml"), screen)
     # main_game.update_position(None, None, 2)
 
 
 def lang_select(elem: gui.Element):
-    print(elem.id)
+    # print(elem.id)
     languages.load(elem.id)
     ui.calc_draw(screen.get_clip())
     ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
 
 
 def back_title(_: gui.Element):
-    print("Back to title screen!")
+    # print("Back to title screen!")
     change_document("title")
 
 
 def back_level_select(_: gui.Element):
-    print("Back to level select!")
+    # print("Back to level select!")
     change_document("levels")
     main_game.disable()
 
 
 def exec_code(_: gui.Element):
-    print("Exec")
+    # print("Exec")
     main_game.run_code()
 
+
 def select_ft_max(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",45)
+    gui.init("res/font/JetBrainsMono-Regular.ttf", 45)
+
 
 def select_ft_medium(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",40)
+    gui.init("res/font/JetBrainsMono-Regular.ttf", 40)
+
 
 def select_ft_min(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",30)
+    gui.init("res/font/JetBrainsMono-Regular.ttf", 30)
 
 
 levels = [
@@ -185,18 +192,18 @@ ui_callbacks = {
         "lang": title_lang,
         "exit": title_quit,
     },
-    "options":{
+    "options": {
         "languages": title_lang,
         "font_size": font_size_select,
         "back": back_title,
     },
-    "font_size":{
+    "font_size": {
         "font_size_min": select_ft_min,
         "font_size_medium": select_ft_medium,
         "font_size_max": select_ft_max,
         "back": title_options
     },
-   
+
     "levels": {
         "back": back_title,
         "level": level_select,
