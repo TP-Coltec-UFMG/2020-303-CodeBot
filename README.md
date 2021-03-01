@@ -11,12 +11,21 @@
 Jogo com o intuito de levar os jogadores a desenvolverem e/ou aprimorarem a sua capacidade lógica, o CodeBot utiliza conceitos de programação em blocos que torna mas abstrato os conceitos de programação, permitindo que qualquer pessoa jogue o jogo sem a necessidade de conhecimentos prévios.
 
 ## Programação em blocos
+Nosso jogo utiliza o conceito de programação em blocos para realizar as ações feitas pelo robozinho **Rivaldo**. Para isso existem blocos de ação que são dados ao usuário a cada nível alcançado, e esses mesmos blocos dão diversos tipos de interpretações e soluções em algumas fases. Vale resaltar aqui que o jogo se inspirou muito em jogos como Scrath, Doodles e Algorithm City, para a sua construção, entretanto toda engine do CodeBot foi feita praticamente do zero, utilizando de base a biblioteca **Pygames**.
 
+<p align="center">
+  <img src="https://github.com/TP-Coltec-UFMG/CodeBot/blob/main/wiki-imgs/programacaoEmBlocos.png" alt="Programação em Blocos" width="500" />
+</p>
 
+## Diferenciais do Jogo
 
-O CodeBot vem equipado com um sistema de escolha de idiomas (para maior acessibilidade), além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco.
+O CodeBot vem equipado com um sistema de escolha de idiomas (para maior acessibilidade) e de escolhas de tamanho de legenda, além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco, tendo também recursos visuais que facilitam a interpretação do problema pelo jogador, como por exemplo, a projeção 3d do mapa.
 
-## Grupo:
+<p align="center">
+  <img src="https://github.com/TP-Coltec-UFMG/CodeBot/blob/main/wiki-imgs/mapa3d.gif" alt="Mapa 3d" width="500"/>
+</p>
+
+## Criadores:
 - [Edson Paschoal](https://github.com/sshEdd1e)
 - [Ezequias Kluyvert](https://github.com/UserZeca)
 - [João Pedro Camargo](https://github.com/CommonHooman)
