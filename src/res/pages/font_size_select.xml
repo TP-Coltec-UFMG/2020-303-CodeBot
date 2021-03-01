@@ -9,7 +9,7 @@
             <button length="30%" margin="10px" on_click="font_size_medium" align="centre">font_size.medium</button>
             <button length="30%" margin="10px" on_click="font_size_max" align="centre">font_size.max</button>
         </vertical>
-        <button length="min" margin="0px" on_click="back" align="centre">options.back</button>
+        <button length="min" margin="10px" on_click="back" align="centre">options.back</button>
     </vertical>
     <space length="10%"/>
 </horizontal>

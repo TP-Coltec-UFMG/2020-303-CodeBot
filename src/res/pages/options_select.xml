@@ -8,7 +8,7 @@
             <button length="30%" margin="10px" on_click="languages" align="centre">options.languages</button>
             <button length="30%" margin="10px" on_click="font_size" align="centre">options.font_size</button>
         </vertical>
-        <button length="min" margin="0px" on_click="back" align="centre">options.back</button>
+        <button length="min" margin="10px" on_click="back" align="centre">options.back</button>
     </vertical>
     <space length="10%"/>
 </horizontal>
