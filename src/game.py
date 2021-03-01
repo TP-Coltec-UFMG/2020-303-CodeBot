@@ -139,7 +139,7 @@ entity_res = 256
 entity_ground = 192
 click_threshold = 150
 step_delay = 200
-cursor_h = 32
+cursor_h = 16
 win_rot_speed = 0.03
 
 # Each sprite uses a different dark colour against white bold text, and
