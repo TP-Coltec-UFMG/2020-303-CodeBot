@@ -8,7 +8,7 @@ font_size:
   title: "Wählen Sie die Schriftgröße"
   min: "Mininum"
   medium: "Durchschnittlich"
-  max: "Maximal"
+  max: "Maximum"
 levels:
   title: "Wählen Sie ein Niveau aus"
   level1: "Niveau 1"
@@ -23,13 +23,13 @@ lang:
   back: "Zum titel zurückkommen"
 level:
   back: "Beenden"
-  win: "¡Ganaste!"
+  win: "Sieg!"
   blocks:
     forward: "gehen()"
     left: "links()"
     right: "rechts()"
-    repeat4: "repeat 4"
-    repeat8: "repeat 8"
+    repeat4: "wiederholen 4"
+    repeat8: "wiederholen 8"
 options: 
   title: "Optionen"
   languages: "Sprachen"
