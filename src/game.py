@@ -141,6 +141,8 @@ click_threshold = 150
 step_delay = 200
 cursor_h = 16
 win_rot_speed = 0.03
+editor_scroll_speed = 40
+render_zoom_speed = .2
 
 # Each sprite uses a different dark colour against white bold text, and
 # two adjacent sprites have very distinct colours. This was made with
@@ -224,6 +226,7 @@ class Game:
         # 3D angles
         self.yaw = math.pi / 4
         self.pitch = math.pi / 6
+        self.scroll = 1
         self.zoom = 1
         self.old_view = (0, 0)  # (yaw, pitch)
         # UI integrations
@@ -249,6 +252,7 @@ class Game:
         lvl_size = max(self.level.width, self.level.height) * texture_res
 
         self.zoom = min(self.elem.rect.w / 2, self.elem.rect.h / 2) / lvl_size
+        self.scroll = 1
         self.yaw = math.pi / 4
         self.pitch = math.pi / 6
 
@@ -289,37 +293,48 @@ class Game:
         if not self.enabled:
             return
         mpos = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.click_start = ticks.get_time()
-            self.click_start_pos = mpos
-            if self.elem.rect.collidepoint(mpos):
-                self.click_type = 1  # drag/pan
-                self.old_view = (self.yaw, self.pitch)
-            else:
-                for b in self.blocks:
-                    b: Blocklist
-                    if b.block.get_box().collidepoint(mpos):
-                        self.click_type = 2
-                        self.block_dragged = b.get_new_block(pygame.Rect(mpos[0], mpos[1], 0, 0))
-                        self.block_offset = (mpos[0] - b.block.pos.x, mpos[1] - b.block.pos.y)
-                        break
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                self.click_start = ticks.get_time()
+                self.click_start_pos = mpos
+                if self.elem.rect.collidepoint(mpos):
+                    self.click_type = 1  # drag/pan
+                    self.old_view = (self.yaw, self.pitch)
                 else:
-                    ret = self.code.trace_block(mpos)
-                    rect: pygame.Rect = self.code.elem.rect
-                    if ret is not None:
-                        self.click_type = 3
-                        self.block_dragged = ret[1]
-                        self.block_offset = (mpos[0] - ret[1].pos.x - rect.x, mpos[1] - ret[1].pos.y - rect.y)
-                        self.code.remove_block(ret[0])
+                    for b in self.blocks:
+                        b: Blocklist
+                        if b.block.get_box().collidepoint(mpos):
+                            self.click_type = 2
+                            self.block_dragged = b.get_new_block(pygame.Rect(mpos[0], mpos[1], 0, 0))
+                            self.block_offset = (mpos[0] - b.block.pos.x, mpos[1] - b.block.pos.y)
+                            break
+                    else:
+                        ret = self.code.trace_block(mpos)
+                        rect: pygame.Rect = self.code.elem.rect
+                        if ret is not None:
+                            self.click_type = 3
+                            self.block_dragged = ret[1]
+                            self.block_offset = (mpos[0] - ret[1].pos.x - rect.x, mpos[1] - ret[1].pos.y - rect.y)
+                            self.code.remove_block(ret[0])
 
-                    # for i, b in enumerate(self.code.blocks):
-                    #     b: Codeblock
-                    #     rect: pygame.Rect = self.code.elem.rect
-                    #     if b.get_box(rect.topleft).collidepoint(mpos):
-                    #         self.click_type = 3
-                    #         self.block_dragged = b
-                    #         self.block_offset = (mpos[0] - b.pos.x - rect.x, mpos[1] - b.pos.y - rect.y)
-                    #         self.code.remove_block(i)
+                        # for i, b in enumerate(self.code.blocks):
+                        #     b: Codeblock
+                        #     rect: pygame.Rect = self.code.elem.rect
+                        #     if b.get_box(rect.topleft).collidepoint(mpos):
+                        #         self.click_type = 3
+                        #         self.block_dragged = b
+                        #         self.block_offset = (mpos[0] - b.pos.x - rect.x, mpos[1] - b.pos.y - rect.y)
+                        #         self.code.remove_block(i)
+            elif event.button == 4:
+                if self.elem.rect.collidepoint(mpos):
+                    self.scroll = min(self.scroll + render_zoom_speed, 4)
+                elif self.code.elem.rect.collidepoint(mpos):
+                    self.code.scroll = min(self.code.scroll + editor_scroll_speed, 0)
+            elif event.button == 5:
+                if self.elem.rect.collidepoint(mpos):
+                    self.scroll = max(self.scroll - render_zoom_speed, 0.5)
+                elif self.code.elem.rect.collidepoint(mpos):
+                    self.code.scroll -= editor_scroll_speed
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             click_duration = ticks.get_time() - self.click_start
             if self.click_type == 2:
@@ -480,6 +495,7 @@ class Game:
             return
         self.code.render(screen)
         self.render_scene(screen)
+        dest = screen.subsurface(self.elem.rect)
         for b in self.blocks:
             b: Blocklist
             b.draw(screen)
@@ -496,31 +512,33 @@ class Game:
         if self.state == 1:
             text = languages.get_str("level.win")
             text_width = _font_victory.size(text)[0]
-            pos = pygame.Rect(self.elem.rect.x + (self.elem.rect.w - text_width) / 2, 10, 0, 0)
-            draw_text(screen, pos, text, 0xFF00FFFF, _font_victory)
+            pos = pygame.Rect((self.elem.rect.w - text_width) / 2, 10, 0, 0)
+            draw_text(dest, pos, text, 0xFF00FFFF, _font_victory)
         elif self.state == 2:
             text = languages.get_str("level.lose")
             text_width = _font_victory.size(text)[0]
-            pos = pygame.Rect(self.elem.rect.x + (self.elem.rect.w - text_width) / 2, 10, 0, 0)
-            draw_text(screen, pos, text, 0xFF00FFFF, _font_victory)
+            pos = pygame.Rect((self.elem.rect.w - text_width) / 2, 10, 0, 0)
+            draw_text(dest, pos, text, 0xFF00FFFF, _font_victory)
 
     def render_scene(self, screen: pygame.Surface):
+        true_zoom = self.zoom * self.scroll
+        dest = screen.subsurface(self.elem.rect)
         # Transform axis vectors
-        x_axis = pygame.math.Vector2(texture_res * self.zoom, 0)
-        y_axis = pygame.math.Vector2(0, texture_res * self.zoom)
+        x_axis = pygame.math.Vector2(texture_res * true_zoom, 0)
+        y_axis = pygame.math.Vector2(0, texture_res * true_zoom)
         x_axis = x_axis.rotate(math.degrees(-self.yaw))
         y_axis = y_axis.rotate(math.degrees(-self.yaw))
         x_axis.y *= math.sin(self.pitch)
         y_axis.y *= math.sin(self.pitch)
         # Transform rendered map
-        map_render = pygame.transform.rotozoom(self.level.level_map, math.degrees(self.yaw), self.zoom)
+        map_render = pygame.transform.rotozoom(self.level.level_map, math.degrees(self.yaw), true_zoom)
         map_render = pygame.transform.scale(
             map_render,
             (int(map_render.get_width()),
              int(map_render.get_height() * math.sin(self.pitch)))
         )
-        pos_x = self.elem.rect.x + (self.elem.rect.w / 2)
-        pos_y = self.elem.rect.y + (self.elem.rect.h / 2)
+        pos_x = self.elem.rect.w / 2
+        pos_y = self.elem.rect.h / 2
         # Scale robot sprite
         angle = ((self.yaw + self.robot_dir * math.pi / 2 + math.pi * 9 / 8) % (math.pi * 2)) * 8 / (math.pi * 2)
         bot_render = robot_atlas.subsurface(
@@ -545,10 +563,10 @@ class Game:
         entities = []
         for c in self.coins:
             entities.append(
-                (pygame.transform.rotozoom(coin_render, 0, self.zoom / (entity_res / 32)), *c)
+                (pygame.transform.rotozoom(coin_render, 0, true_zoom / (entity_res / 32)), *c)
             )
         entities.append((
-            pygame.transform.rotozoom(bot_render, 0, self.zoom / (entity_res / 32)),
+            pygame.transform.rotozoom(bot_render, 0, true_zoom / (entity_res / 32)),
             self.robot_x,
             self.robot_y,
         ))
@@ -559,18 +577,18 @@ class Game:
             to_render.append((e[0], ent_pos.x, ent_pos.y))
         to_render.sort(key=lambda x: x[2])
         # Rendering
-        screen.blit(map_render, (pos_x - map_render.get_width() / 2, pos_y - map_render.get_height() / 2))
+        dest.blit(map_render, (pos_x - map_render.get_width() / 2, pos_y - map_render.get_height() / 2))
         # screen.blit(
         #     bot_render,
-        #     (robot_pos.x - (robot_res * self.zoom) / 4, robot_pos.y - (robot_ground * self.zoom) / 2)
+        #     (robot_pos.x - (robot_res * true_zoom) / 4, robot_pos.y - (robot_ground * true_zoom) / 2)
         # )
         for e in to_render:
             # print(e)
-            screen.blit(
+            dest.blit(
                 e[0],
                 (
-                    e[1] - (entity_res * self.zoom) / (entity_res / 16),
-                    e[2] - (entity_ground * self.zoom) / (entity_res / 32)
+                    e[1] - (entity_res * true_zoom) / (entity_res / 16),
+                    e[2] - (entity_ground * true_zoom) / (entity_res / 32)
                 )
             )
 
@@ -795,6 +813,7 @@ class CodeContainer(Codeblock):
 class Code:
     def __init__(self, document: gui.DocumentXML):
         self.elem: gui.Element = document.ids["code"]
+        self.scroll = 0
         self.blocks = []
         self.cursors = [0]  # For nested blocks
 
@@ -871,7 +890,7 @@ class Code:
         return closest, closest_dis
 
     def update(self):
-        current_y = 0
+        current_y = self.scroll
         # print(self.cursors)
         for i, b in enumerate(self.blocks):
             b: Codeblock
@@ -886,7 +905,7 @@ class Code:
 
     def draw_cursor(self, screen: pygame.Surface):
         # dest = screen.subsurface(self.elem.rect)
-        current_y = 0
+        current_y = self.scroll
         for i, b in enumerate(self.blocks):
             b: Codeblock
             if i == self.cursors[0]:

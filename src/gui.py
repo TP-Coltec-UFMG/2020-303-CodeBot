@@ -4,6 +4,7 @@ from pygame.image import load_extended
 import languages
 
 _font: pygame.font.Font
+scroll_speed = 50
 
 
 def init(font, size):
@@ -22,7 +23,7 @@ def debug(func: callable) -> callable:
 
 
 def draw_margin(func: callable) -> callable:
-    def wrapper(self: "Element", rect: pygame.Rect, document: "DocumentXML"):
+    def wrapper(self: "Element", rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         if self.margin.endswith("px"):
             margin = float(self.margin[:-2])
             rect.x += margin
@@ -35,7 +36,7 @@ def draw_margin(func: callable) -> callable:
             rect.y += margin * rect.h
             rect.w -= margin * rect.w * 2
             rect.h -= margin * rect.h * 2
-        return func(self, rect, document)
+        return func(self, rect, document, max_rect)
 
     return wrapper
 
@@ -89,6 +90,8 @@ class Element:
         self.rect: pygame.Rect
         self.rect = None
         self.attrs = attrs
+        self.bounding_box: pygame.Rect
+        self.bounding_box = None
 
         if "length" in attrs:
             self.length = attrs["length"]
@@ -112,6 +115,11 @@ class Element:
         else:
             self.on_click = None
 
+        if "scrollable" in attrs:
+            self.scrollable = True
+        else:
+            self.scrollable = False
+
         if "color" in self.attrs:
             v = self.attrs["color"]
             if v.startswith("#"):
@@ -130,11 +138,15 @@ class Element:
     def add_child(self, elem):
         self.children.append(elem)
 
+    def reset(self):
+        pass
+
     # Overridable
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
         self.rect = rect
+        self.bounding_box = max_rect
 
     # Overridable
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
@@ -171,6 +183,8 @@ class Container(Element):
     def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
 
+        self.scroll = 0
+
         if "align" in self.attrs:
             self.align = self.attrs["align"]
         else:
@@ -180,26 +194,26 @@ class Container(Element):
         ret = []
         start_l, start_c, along, across = along_t
         if self.align == "before":
-            axis_l = start_l
+            axis_l = start_l + self.scroll
             for i, c in enumerate(self.children):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
                 axis_l += lengths[i]
         elif self.align == "after":
-            axis_l = start_l + space
+            axis_l = start_l + space + self.scroll
             for i, c in enumerate(self.children):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
                 axis_l += lengths[i]
         elif self.align == "center" or self.align == "centre":
-            axis_l = start_l + space / 2
+            axis_l = start_l + space / 2 + self.scroll
             for i, c in enumerate(self.children):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
                 axis_l += lengths[i]
         elif self.align == "distribute":
             gap = space / (len(self.children) + 1)
-            axis_l = start_l + gap
+            axis_l = start_l + gap + self.scroll
             for i, c in enumerate(self.children):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
@@ -208,7 +222,7 @@ class Container(Element):
                 elif len(self.children) > 1:
                     axis_l += lengths[i] + gap
         elif self.align == "justify" or self.align == "proportional":
-            axis_l = start_l
+            axis_l = start_l + self.scroll
             for i, c in enumerate(self.children):
                 sub_rect = (axis_l, start_c, lengths[i], across)
                 ret.append((sub_rect, c))
@@ -295,14 +309,28 @@ class Container(Element):
             along /= along_percent
         return 0, 0, along, across
 
+    def reset(self):
+        self.scroll = 0
+        for c in self.children:
+            if isinstance(c, Container):
+                c.reset()
+
 
 class Space(Element):
     def __init__(self, document: "DocumentXML", tag: str, attrs: dict):
         super().__init__(document, tag, attrs)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         if self.colour != 0:
-            fill_rect(screen, self.rect, self.colour)
+            fill_rect(dest, rect, self.colour)
 
 
 class Image(Element):
@@ -329,8 +357,9 @@ class Image(Element):
             self.smooth = False
 
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         if not self.image:
             self.image = load_extended(str(self.data))
         img_width, img_height = self.image.get_size()
@@ -357,14 +386,22 @@ class Image(Element):
         self.rect = r
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        # draw_box(screen, self.rect, 0x0000FF)
-        # fill_rect(screen, self.rect, 0x0000007F)
-        draw_box(screen, self.rect, 0xFFFFFF, True)
-        screen.blit(self.image_scaled, self.rect)
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
+        # draw_box(dest, rect, 0x0000FF)
+        # fill_rect(dest, rect, 0x0000007F)
+        draw_box(dest, rect, 0xFFFFFF, True)
+        dest.blit(self.image_scaled, rect)
         if self.hover_colour:
             if self == document.hover_element:
-                fill_rect(screen, self.rect, self.hover_colour)
-        # draw_text(screen, self.rect, self.data, 0xFFFFFFFF)
+                fill_rect(dest, rect, self.hover_colour)
+        # draw_text(dest, rect, self.data, 0xFFFFFFFF)
 
 
 class Button(Element):
@@ -377,28 +414,36 @@ class Button(Element):
             self.align = "left"
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         font_size = _font.size(languages.get_str(self.data))
         gap_x = self.rect.w - font_size[0] - 20
         gap_y = self.rect.h - font_size[1] - 20
         if self.colour:
             if self == document.hover_element:
-                fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x000000FF)
+                fill_rect(dest, rect, (self.colour & 0xFFFFFF00) | 0x000000FF)
             else:
-                fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x0000007F)
+                fill_rect(dest, rect, (self.colour & 0xFFFFFF00) | 0x0000007F)
         else:
             if self == document.hover_element:
-                fill_rect(screen, self.rect, 0xFFFFFF7F)
+                fill_rect(dest, rect, 0xFFFFFF7F)
             else:
-                fill_rect(screen, self.rect, 0x0000007F)
-        draw_box(screen, self.rect, 0x000000FF, True)
+                fill_rect(dest, rect, 0x0000007F)
+        draw_box(dest, rect, 0x000000FF, True)
         if self.align == "left":
-            draw_text(screen, self.rect, languages.get_str(self.data), 0xFFFFFFFF)
+            draw_text(dest, rect, languages.get_str(self.data), 0xFFFFFFFF)
         elif self.align == "rigth":
-            r = pygame.Rect(self.rect.x + gap_x, self.rect.y, 0, 0)
-            draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
+            r = pygame.Rect(rect.x + gap_x, rect.y, 0, 0)
+            draw_text(dest, r, languages.get_str(self.data), 0xFFFFFFFF)
         elif self.align == "centre" or self.align == "center":
-            r = pygame.Rect(self.rect.x + gap_x / 2, self.rect.y + gap_y / 2, 0, 0)
-            draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
+            r = pygame.Rect(rect.x + gap_x / 2, rect.y + gap_y / 2, 0, 0)
+            draw_text(dest, r, languages.get_str(self.data), 0xFFFFFFFF)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -408,8 +453,16 @@ class Button(Element):
 
 class Text(Element):
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        draw_box(screen, self.rect, 0xFF00FF, True)
-        draw_text(screen, self.rect, languages.get_str(self.data), self.colour)
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
+        draw_box(dest, rect, 0xFF00FF, True)
+        draw_text(dest, rect, languages.get_str(self.data), self.colour)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -427,17 +480,26 @@ class Horizontal(Container):
             self.align = "after"
 
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         self.rect = rect
         items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
         for along_t, c in items:
-            c.calc_draw(pygame.Rect(*along_t), document)
+            c.calc_draw(pygame.Rect(*along_t), document, rect.clip(max_rect))
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         if self.colour != 0:
-            fill_rect(screen, self.rect, self.colour)
-        draw_box(screen, self.rect, 0xFF0000)
+            fill_rect(dest, rect, self.colour)
+        draw_box(dest, rect, 0xFF0000)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -455,17 +517,26 @@ class Vertical(Container):
             self.align = "after"
 
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         self.rect = rect
         items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
         for along_t, c in items:
-            c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+            c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document, rect.clip(max_rect))
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         if self.colour != 0:
-            fill_rect(screen, self.rect, self.colour)
-        draw_box(screen, self.rect, 0x00FF00)
+            fill_rect(dest, rect, self.colour)
+        draw_box(dest, rect, 0x00FF00)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -478,22 +549,31 @@ class Lengthwise(Container):
         super().__init__(document, tag, attrs)
 
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         self.rect = rect
         if rect.w > rect.h:
             items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
             for along_t, c in items:
-                c.calc_draw(pygame.Rect(*along_t), document)
+                c.calc_draw(pygame.Rect(*along_t), document, rect.clip(max_rect))
         else:
             items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
             for along_t, c in items:
-                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document, rect.clip(max_rect))
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         if self.colour != 0:
-            fill_rect(screen, self.rect, self.colour)
-        draw_box(screen, self.rect, 0x00FF00)
+            fill_rect(dest, rect, self.colour)
+        draw_box(dest, rect, 0x00FF00)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -507,22 +587,31 @@ class Crosswise(Container):
         super().__init__(document, tag, attrs)
 
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         self.rect = rect
         if rect.w > rect.h:
             items = self.repart(rect, lambda r: (r.y, r.x, r.h, r.w))
             for along_t, c in items:
-                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document)
+                c.calc_draw(pygame.Rect(along_t[1], along_t[0], along_t[3], along_t[2]), document, rect.clip(max_rect))
         else:
             items = self.repart(rect, lambda r: (r.x, r.y, r.w, r.h))
             for along_t, c in items:
-                c.calc_draw(pygame.Rect(*along_t), document)
+                c.calc_draw(pygame.Rect(*along_t), document, rect.clip(max_rect))
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
         if self.colour != 0:
-            fill_rect(screen, self.rect, self.colour)
-        draw_box(screen, self.rect, 0x00FF00)
+            fill_rect(dest, rect, self.colour)
+        draw_box(dest, rect, 0x00FF00)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -533,14 +622,23 @@ class Crosswise(Container):
 
 class Overlap(Element):
     @draw_margin
-    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML"):
+    def calc_draw(self, rect: pygame.Rect, document: "DocumentXML", max_rect: pygame.Rect):
         document.add_drawable(self)
+        self.bounding_box = max_rect
         self.rect = rect
         for c in self.children:
-            c.calc_draw(rect, document)
+            c.calc_draw(rect, document, rect)
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        draw_box(screen, self.rect, 0xFFFF00)
+        if self.bounding_box.size == (0, 0):
+            return
+        dest = screen.subsurface(self.bounding_box)
+        rect = pygame.Rect(
+            self.rect.x - self.bounding_box.x,
+            self.rect.y - self.bounding_box.y,
+            self.rect.w, self.rect.h
+        )
+        draw_box(dest, rect, 0xFFFF00)
 
     @add_margin
     def get_min(self) -> pygame.Rect:
@@ -577,7 +675,7 @@ class DocumentXML:
     def calc_draw(self, rect: pygame.Rect):
         self.root: Element
         self.drawables.clear()
-        self.root.calc_draw(rect, self)
+        self.root.calc_draw(rect, self, rect)
 
     def draw(self, screen: pygame.Surface):
         for d in self.drawables:
@@ -593,12 +691,25 @@ class DocumentXML:
         return None
 
     def handle_event(self, screen: pygame.Surface, event: pygame.event.Event):
+        mpos = pygame.mouse.get_pos()
         if event.type == pygame.VIDEORESIZE:
             self.calc_draw(screen.get_clip())
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if self.hover_element and self.hover_element.on_click:
                     self.call_event(self.hover_element)
+            elif event.button == 4:
+                for elem in reversed(self.drawables):
+                    if elem.rect.collidepoint(mpos) and elem.scrollable:
+                        elem.scroll += scroll_speed
+                        self.calc_draw(screen.get_clip())
+                        break
+            elif event.button == 5:
+                for elem in reversed(self.drawables):
+                    if elem.rect.collidepoint(mpos) and elem.scrollable:
+                        elem.scroll -= scroll_speed
+                        self.calc_draw(screen.get_clip())
+                        break
 
 
 class LoaderXML(html.parser.HTMLParser):
