@@ -1,0 +1,41 @@
+lang_name: "Français (FR)"
+title:
+  start_game: "Jouer"
+  options: "Options"
+  languages: "Langues"
+  quit: "Quitter"
+font_size:
+  title: "Sélectionnez la taille de la police"
+  min: "Le minimum"
+  medium: "Moyen"
+  max: "Maximum"
+levels:
+  title: "Choisir le niveau"
+  level1: "Niveau 1"
+  level2: "Niveau 2"
+  level3: "Niveau 3"
+  level4: "Niveau 4"
+  level5: "Niveau 5"
+  level6: "Niveau 6"
+  back: "Retour au titre"
+lang:
+  title: "Choisir la langue"
+  back: "Retour au titre"
+level:
+  back: "Quitter"
+  win: "Vous gagnez!"
+  blocks:
+    forward: "marcher()"
+    left: "gauche()"
+    right: "droite()"
+    repeat4: "répéter 4"
+    repeat8: "répéter 8"
+options: 
+  title: "Options"
+  languages: "Langues"
+  font_size: "Tailles"
+  back: "Retour"
+quit:
+  y: "Oui, je veux arrêter"
+  n: "Non"
+  confirm: "Êtes-vous sûr de vouloir quitter?"

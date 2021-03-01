@@ -1,8 +1,14 @@
 lang_name: "Deutsch (DE)"
 title:
   start_game: "Spielen"
+  options: "Optionen"
   languages: "Sprachen"
   quit: "Beenden"
+font_size:
+  title: "Wählen Sie die Schriftgröße"
+  min: "Mininum"
+  medium: "Durchschnittlich"
+  max: "Maximal"
 levels:
   title: "Wählen Sie ein Niveau aus"
   level1: "Niveau 1"
@@ -17,10 +23,18 @@ lang:
   back: "Zum titel zurückkommen"
 level:
   back: "Beenden"
+  win: "¡Ganaste!"
   blocks:
     forward: "gehen()"
     left: "links()"
     right: "rechts()"
+    repeat4: "repeat 4"
+    repeat8: "repeat 8"
+options: 
+  title: "Optionen"
+  languages: "Sprachen"
+  font_size: "Schriftgröße"
+  back: "Zum titel zurückkommen"
 quit:
   y: "Ja, möchte ich gehen"
   n: "Nein"
