@@ -63,3 +63,4 @@ $ python --version
 ```
 
 ---
+[MIT License](./LICENSE) © [CodeBot](https://github.com/TP-Coltec-UFMG/CodeBot)
