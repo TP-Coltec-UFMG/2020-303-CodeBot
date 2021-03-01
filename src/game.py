@@ -239,7 +239,7 @@ class Game:
         self.state = 0
         self.coin_counter = 0
         # Level stats
-        self.unlocked_level = 1
+        self.unlocked_level = 5
         self.levels = []
 
     def enable(self, document: gui.DocumentXML, level: Level, screen: pygame.Surface):
@@ -531,7 +531,8 @@ class Game:
                 entity_res
             )
         ).copy()
-        coin_state = int(ticks.get_time() / 250) % 4
+        coin_state = int(ticks.get_time() / 250 - self.yaw * 4 / (math.pi * 2)) % 4
+        # coin_state = int(ticks.get_time() / 250) % 4
         coin_render = coin_atlas.subsurface(
             pygame.Rect(
                 coin_state * entity_res,
