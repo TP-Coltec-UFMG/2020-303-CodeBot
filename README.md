@@ -11,8 +11,11 @@
 Jogo com o intuito de levar os jogadores a desenvolverem e/ou aprimorarem a sua capacidade lógica, o CodeBot utiliza conceitos de programação em blocos que torna mas abstrato os conceitos de programação, permitindo que qualquer pessoa jogue o jogo sem a necessidade de conhecimentos prévios.
 
 ## Programação em blocos
+Nosso jogo utiliza o conceito de programação em blocos para realizar as ações feitas pelo robozinho Rivaldo. Para isso existem blocos de ação que são dados ao usuário a cada nível alcançado, e esses mesmos blocos dão diversos tipos de interpretações e soluções em algumas fases. Vale resaltar aqui que o jogo se impirou muito em jogos como Scrath, Doodles e Algorithm City, para a sua construção, entretanto toda engine do CodeBot foi feita praticamente do zero, utilizando de base a biblioteca **Pygames**.
 
-
+<p align="center">
+  <img src="https://github.com/TP-Coltec-UFMG/CodeBot/blob/main/wiki-imgs/programacaoEmBlocos.png" alt="Programação em Blocos" width="500" />
+</p>
 
 O CodeBot vem equipado com um sistema de escolha de idiomas (para maior acessibilidade), além de ser extremamente intuitivo com o uso de blocos de código: o jogador - iniciante em programação - não precisará programar diretamente em texto, e sim montando seu algoritmo bloco por bloco.
 
