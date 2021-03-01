@@ -1,6 +1,6 @@
 # CodeBot
 ![Language/biblioteca](https://img.shields.io/badge/Python-pygames-orange)
-![Licence](https://img.shields.io/badge/Licence-MIT-blue)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 <p align="center">
   <img src="https://github.com/TP-Coltec-UFMG/codebot/blob/release-01/wiki-imgs/menu.png" alt="Menu inicial" width="500">
@@ -63,4 +63,5 @@ $ python --version
 ```
 
 ---
+## Licença
 [MIT License](./LICENSE) © [CodeBot](https://github.com/TP-Coltec-UFMG/CodeBot)
