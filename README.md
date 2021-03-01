@@ -1,4 +1,5 @@
 # CodeBot
+![Language/biblioteca](https://img.shields.io/badge/Python-pygames-orange)
 
 
 <p align="center">
