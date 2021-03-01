@@ -17,7 +17,9 @@ def debug(func: callable) -> callable:
         ret = func(*args, **kwargs)
         print(f"Returned {ret} from {func.__name__}")
         return ret
+
     return wrapper
+
 
 def draw_margin(func: callable) -> callable:
     def wrapper(self: "Element", rect: pygame.Rect, document: "DocumentXML"):
@@ -34,6 +36,7 @@ def draw_margin(func: callable) -> callable:
             rect.w -= margin * rect.w * 2
             rect.h -= margin * rect.h * 2
         return func(self, rect, document)
+
     return wrapper
 
 
@@ -53,6 +56,7 @@ def add_margin(func: callable) -> callable:
             rect.w += margin * rect.w * 2
             rect.h += margin * rect.h * 2
         return rect
+
     return wrapper
 
 
@@ -373,8 +377,9 @@ class Button(Element):
             self.align = "left"
 
     def draw(self, screen: pygame.Surface, document: "DocumentXML"):
-        font_width = _font.size(languages.get_str(self.data))[0]
-        gap = self.rect.w - font_width - 20
+        font_size = _font.size(languages.get_str(self.data))
+        gap_x = self.rect.w - font_size[0] - 20
+        gap_y = self.rect.h - font_size[1] - 20
         if self.colour:
             if self == document.hover_element:
                 fill_rect(screen, self.rect, (self.colour & 0xFFFFFF00) | 0x000000FF)
@@ -389,10 +394,10 @@ class Button(Element):
         if self.align == "left":
             draw_text(screen, self.rect, languages.get_str(self.data), 0xFFFFFFFF)
         elif self.align == "rigth":
-            r = pygame.Rect(self.rect.x + gap, self.rect.y, 0, 0)
+            r = pygame.Rect(self.rect.x + gap_x, self.rect.y, 0, 0)
             draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
         elif self.align == "centre" or self.align == "center":
-            r = pygame.Rect(self.rect.x + gap / 2, self.rect.y, 0, 0)
+            r = pygame.Rect(self.rect.x + gap_x / 2, self.rect.y + gap_y / 2, 0, 0)
             draw_text(screen, r, languages.get_str(self.data), 0xFFFFFFFF)
 
     @add_margin
