@@ -18,6 +18,7 @@ def change_document(name):
     if name in uis:
         current_ui = name
         ui = uis[current_ui]
+        ui.root.reset()
         ui.calc_draw(screen.get_clip())
         ui.hover_element = ui.trace_element(pygame.mouse.get_pos())
     else:
