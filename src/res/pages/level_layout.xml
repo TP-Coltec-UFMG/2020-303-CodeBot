@@ -24,7 +24,9 @@
         </vertical>
         <space id="game"/>
     </horizontal>
-    <horizontal length="20%" colour="#0000007F" align="distribute" id="blocklist" scrollable="true">
-<!--        Blocks are inserted here-->
-    </horizontal>
+    <vertical length="min" colour="#0000007F" align="centre">
+        <horizontal length="min" margin="10px" align="distribute" id="blocklist" scrollable="true">
+        <!--Blocks are inserted here-->
+        </horizontal>
+    </vertical>
 </vertical>

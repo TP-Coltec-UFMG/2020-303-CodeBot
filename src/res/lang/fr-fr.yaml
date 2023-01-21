@@ -24,6 +24,7 @@ lang:
 level:
   back: "Quitter"
   win: "Vous gagnez!"
+  lose: "Tu as perdu!"
   blocks:
     forward: "marcher()"
     left: "gauche()"

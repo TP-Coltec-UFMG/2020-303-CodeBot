@@ -331,6 +331,8 @@ class Space(Element):
         )
         if self.colour != 0:
             fill_rect(dest, rect, self.colour)
+        else:
+            draw_box(screen, self.rect, 0xFF0000)
 
 
 class Image(Element):
