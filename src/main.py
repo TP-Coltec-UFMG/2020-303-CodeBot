@@ -57,7 +57,7 @@ def title_start(_: gui.Element):
                     "length": "10%",
                     "id": f"star{j + 1}"
                 })
-                filled_star.data = "res/textures/star_full.png"
+                filled_star.data = "src/res/textures/star_full.png"
                 horiz.add_child(filled_star)
             else:
                 empty_star = gui.Image(ui, "image", {
@@ -67,7 +67,7 @@ def title_start(_: gui.Element):
                     "length": "10%",
                     "id": f"star{j + 1}"
                 })
-                empty_star.data = "res/textures/star_empty.png"
+                empty_star.data = "src/res/textures/star_empty.png"
                 horiz.add_child(empty_star)
         lvl_list.add_child(horiz)
     change_document("levels")
@@ -117,7 +117,7 @@ def game_quit(_: gui.Element):
 
 def level_select(elem: gui.Element):
     change_document("level")
-    main_game.enable(ui, game.Level(f"res/levels/{elem.id}.yaml"), screen)
+    main_game.enable(ui, game.Level(f"src/res/levels/{elem.id}.yaml"), screen)
     # main_game.update_position(None, None, 2)
 
 
@@ -140,27 +140,27 @@ def exec_code(_: gui.Element):
     main_game.run_code()
 
 def select_ft_max(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",45)
+    gui.init("src/res/font/JetBrainsMono-Regular.ttf",45)
 
 def select_ft_medium(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",40)
+    gui.init("src/res/font/JetBrainsMono-Regular.ttf",40)
 
 def select_ft_min(_: gui.Element):
-    gui.init("res/font/JetBrainsMono-Regular.ttf",30)
+    gui.init("src/res/font/JetBrainsMono-Regular.ttf",30)
 
 
 levels = sorted([
-    lvl[:-5] for lvl in os.listdir("res/levels")
+    lvl[:-5] for lvl in os.listdir("src/res/levels")
 ])
 
 uis = {
-    "title": gui.LoaderXML("res/pages/title_screen.xml").get_document(),
-    "options": gui.LoaderXML("res/pages/options_select.xml").get_document(),
-    "font_size": gui.LoaderXML("res/pages/font_size_select.xml").get_document(),
-    "levels": gui.LoaderXML("res/pages/level_select.xml").get_document(),
-    "language": gui.LoaderXML("res/pages/language_select.xml").get_document(),
-    "level": gui.LoaderXML("res/pages/level_layout.xml").get_document(),
-    "quit": gui.LoaderXML("res/pages/quit_confirm.xml").get_document(),
+    "title": gui.LoaderXML("src/res/pages/title_screen.xml").get_document(),
+    "options": gui.LoaderXML("src/res/pages/options_select.xml").get_document(),
+    "font_size": gui.LoaderXML("src/res/pages/font_size_select.xml").get_document(),
+    "levels": gui.LoaderXML("src/res/pages/level_select.xml").get_document(),
+    "language": gui.LoaderXML("src/res/pages/language_select.xml").get_document(),
+    "level": gui.LoaderXML("src/res/pages/level_layout.xml").get_document(),
+    "quit": gui.LoaderXML("src/res/pages/quit_confirm.xml").get_document(),
 }
 ui_callbacks = {
     "title": {
@@ -214,9 +214,9 @@ main_game = game.Game()
 def main():
     pygame.display.set_caption('Code Bot')
     clk = pygame.time.Clock()
-    gui.init("res/font/JetBrainsMono-Regular.ttf", 30)
+    gui.init("src/res/font/JetBrainsMono-Regular.ttf", 30)
     game.init()
-    languages.load("res/lang/en-gb.yaml")
+    languages.load("src/res/lang/en-gb.yaml")
     change_document("title")
 
     while True:

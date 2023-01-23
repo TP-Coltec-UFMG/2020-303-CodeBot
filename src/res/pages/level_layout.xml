@@ -9,7 +9,7 @@
                         margin="5px"
                         on_click="back"
                         hover_colour="#FFFFFF3F">
-                    res/textures/go_back.png
+                    src/res/textures/go_back.png
                 </image>
                 <image
                         align="right"
@@ -17,7 +17,7 @@
                         margin="5px"
                         on_click="play"
                         hover_colour="#FFFFFF3F">
-                    res/textures/play_btn.png
+                    src/res/textures/play_btn.png
                 </image>
             </horizontal>
             <space id="code"/>

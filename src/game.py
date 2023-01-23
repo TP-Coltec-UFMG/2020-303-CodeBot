@@ -12,8 +12,8 @@ _font_victory: pygame.font.Font
 
 def init():
     global _font_code, _font_victory
-    _font_code = pygame.font.Font("res/font/JetBrainsMono-Bold.ttf", 25)
-    _font_victory = pygame.font.Font("res/font/JetBrainsMono-Bold.ttf", 60)
+    _font_code = pygame.font.Font("src/res/font/JetBrainsMono-Bold.ttf", 25)
+    _font_victory = pygame.font.Font("src/res/font/JetBrainsMono-Bold.ttf", 60)
 
 
 def draw_text(screen: pygame.Surface, rect: pygame.Rect, data: str, colour, font: pygame.font.Font):
@@ -67,48 +67,26 @@ class SlicedSprite:
             (self.corner, sizes[1])
         )
         screen.blit(left, (rect.x, rect.y + self.corner))
-        if gap == 0:
-            # Centre
-            centre = pygame.transform.scale(
-                self.image.subsurface(
-                    pygame.Rect(
-                        self.corner, self.corner, self.size[0] - 2 * self.corner, self.size[1] - 2 * self.corner
-                    )
-                ).copy(),
-                (sizes[0], sizes[1])
-            )
-            screen.blit(centre, (rect.x + self.corner, rect.y + self.corner))
-            # Right
-            right = pygame.transform.scale(
-                self.image.subsurface(
-                    pygame.Rect(
-                        self.size[0] - self.corner, self.corner, self.corner, self.size[1] - 2 * self.corner
-                    )
-                ).copy(),
-                (self.corner, sizes[1])
-            )
-            screen.blit(right, (rect.x + sizes[0] + self.corner, rect.y + self.corner))
-        else:
-            # Centre
-            centre = pygame.transform.scale(
-                self.image.subsurface(
-                    pygame.Rect(
-                        self.corner, self.corner, self.size[0] - 2 * self.corner, self.size[1] - 2 * self.corner
-                    )
-                ).copy(),
-                (sizes[0], sizes[1] - gap)
-            )
-            screen.blit(centre, (rect.x + self.corner, rect.y + self.corner))
-            # Right
-            right = pygame.transform.scale(
-                self.image.subsurface(
-                    pygame.Rect(
-                        self.size[0] - self.corner, self.corner, self.corner, self.size[1] - 2 * self.corner
-                    )
-                ).copy(),
-                (self.corner, sizes[1] - gap)
-            )
-            screen.blit(right, (rect.x + sizes[0] + self.corner, rect.y + self.corner))
+        # Centre
+        centre = pygame.transform.scale(
+            self.image.subsurface(
+                pygame.Rect(
+                    self.corner, self.corner, self.size[0] - 2 * self.corner, self.size[1] - 2 * self.corner
+                )
+            ).copy(),
+            (sizes[0], sizes[1] - gap)
+        )
+        screen.blit(centre, (rect.x + self.corner, rect.y + self.corner))
+        # Right
+        right = pygame.transform.scale(
+            self.image.subsurface(
+                pygame.Rect(
+                    self.size[0] - self.corner, self.corner, self.corner, self.size[1] - 2 * self.corner
+                )
+            ).copy(),
+            (self.corner, sizes[1] - gap)
+        )
+        screen.blit(right, (rect.x + sizes[0] + self.corner, rect.y + self.corner))
         # Bottom left
         screen.blit(
             self.image, (rect.x, rect.y + sizes[1] + self.corner),
@@ -131,10 +109,10 @@ class SlicedSprite:
         )
 
 
-texture_atlas: pygame.Surface = load_extended("res/textures/atlas.png")
+texture_atlas: pygame.Surface = load_extended("src/res/textures/atlas.png")
 texture_res = 32
-robot_atlas: pygame.Surface = load_extended("res/textures/robot.png")
-coin_atlas: pygame.Surface = load_extended("res/textures/coin.png")
+robot_atlas: pygame.Surface = load_extended("src/res/textures/robot.png")
+coin_atlas: pygame.Surface = load_extended("src/res/textures/coin.png")
 entity_res = 256
 entity_ground = 192
 click_threshold = 150
@@ -149,12 +127,12 @@ render_zoom_speed = .2
 # colour blindness in mind, to help create greater contrast between the
 # code blocks.
 code_block_textures: list = [
-    SlicedSprite(load_extended("res/textures/blocks/block_red.png")),
-    SlicedSprite(load_extended("res/textures/blocks/block_blue.png")),
-    SlicedSprite(load_extended("res/textures/blocks/block_yellow.png")),
-    SlicedSprite(load_extended("res/textures/blocks/block_green.png")),
-    SlicedSprite(load_extended("res/textures/blocks/block_orange.png")),
-    SlicedSprite(load_extended("res/textures/blocks/block_pink.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_red.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_blue.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_yellow.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_green.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_orange.png")),
+    SlicedSprite(load_extended("src/res/textures/blocks/block_pink.png")),
 ]
 
 class Level:

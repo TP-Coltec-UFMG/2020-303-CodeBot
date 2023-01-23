@@ -5,8 +5,8 @@ strings = dict()
 
 
 def refresh() -> iter:
-    for file in os.listdir("res/lang"):
-        yield "./res/lang/" + file
+    for file in os.listdir("src/res/lang"):
+        yield "src/res/lang/" + file
 
 
 def load(filename: str):
@@ -55,6 +55,6 @@ def get_str(string: str, report=False) -> str:
 
 
 if __name__ == '__main__':
-    load("res/lang/pt-br.yaml")
+    load("src/res/lang/pt-br.yaml")
     print(strings)
     print(get_str("levels.back"))

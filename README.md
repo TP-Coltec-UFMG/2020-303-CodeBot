@@ -51,10 +51,10 @@ $ git clone https://github.com/TP-Coltec-UFMG/codebot
 $ pip3 install --requirement codebot/requirements.txt
 
 # Abrir o diretório de trabalho
-$ cd codebot/src
+$ cd codebot/
 
 # Executar o script principal
-$ python3 main.py
+$ python3 src/main.py
 ```
 
 Windows (powershell):
@@ -66,10 +66,10 @@ $ git.exe clone https://github.com/TP-Coltec-UFMG/codebot
 $ pip.exe install --requirement .\codebot\requirements.txt
 
 # Abrir o diretório de trabalho
-$ cd .\codebot\src
+$ cd .\codebot\
 
 # Executar o script principal
-$ python.exe .\main.py
+$ python.exe .\src\main.py
 ```
 
 Tenha certeza de que a versão de Python que está sendo executada é a versão 3.x:

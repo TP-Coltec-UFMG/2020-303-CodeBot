@@ -11,7 +11,7 @@
                             length="80%"
                             smooth="true"
                             align="down">
-                        res/textures/title2.png
+                        src/res/textures/title2.png
                     </image>
                 </vertical>
             </overlap>
