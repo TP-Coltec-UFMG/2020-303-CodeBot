@@ -157,11 +157,6 @@ code_block_textures: list = [
     SlicedSprite(load_extended("res/textures/blocks/block_pink.png")),
 ]
 
-# container_block_textures: list = [
-#     SlicedSprite(load_extended("res/textures/blocks/block_red.png")),
-# ]
-
-
 class Level:
     def __init__(self, filename: str):
         text: str
@@ -293,7 +288,6 @@ class Game:
             return
         mpos = pygame.mouse.get_pos()
 
-        ################
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 self.click_start = ticks.get_time()
@@ -317,15 +311,6 @@ class Game:
                             self.block_dragged = ret[1]
                             self.block_offset = (mpos[0] - ret[1].pos.x - rect.x, mpos[1] - ret[1].pos.y - rect.y)
                             self.code.remove_block(ret[0])
-
-                        # for i, b in enumerate(self.code.blocks):
-                        #     b: Codeblock
-                        #     rect: pygame.Rect = self.code.elem.rect
-                        #     if b.get_box(rect.topleft).collidepoint(mpos):
-                        #         self.click_type = 3
-                        #         self.block_dragged = b
-                        #         self.block_offset = (mpos[0] - b.pos.x - rect.x, mpos[1] - b.pos.y - rect.y)
-                        #         self.code.remove_block(i)
             elif event.button == 4:
                 if self.elem.rect.collidepoint(mpos):
                     self.scroll = min(self.scroll + render_zoom_speed, 4)
@@ -481,7 +466,6 @@ class Game:
             return
         self.code.render(screen)
         self.render_scene(screen)
-        # ?
         dest = screen.subsurface(self.elem.rect)
         for b in self.blocks:
             b: Blocklist
@@ -523,8 +507,10 @@ class Game:
             (int(map_render.get_width()),
              int(map_render.get_height() * math.sin(self.pitch)))
         )
-        pos_x = self.elem.rect.x + (self.elem.rect.w / 2)
-        pos_y = self.elem.rect.y + (self.elem.rect.h / 2)
+        # pos_x = self.elem.rect.x + (self.elem.rect.w / 2)
+        # pos_y = self.elem.rect.y + (self.elem.rect.h / 2)
+        pos_x = self.elem.rect.w / 2
+        pos_y = self.elem.rect.h / 2
         # Scale robot sprite
         angle = ((self.yaw + self.robot_dir * math.pi / 2 + math.pi * 9 / 8) % (math.pi * 2)) * 8 / (math.pi * 2)
         bot_render = robot_atlas.subsurface(
@@ -564,10 +550,7 @@ class Game:
         to_render.sort(key=lambda x: x[2])
         # Rendering
         dest.blit(map_render, (pos_x - map_render.get_width() / 2, pos_y - map_render.get_height() / 2))
-        # screen.blit(
-        #     bot_render,
-        #     (robot_pos.x - (robot_res * true_zoom) / 4, robot_pos.y - (robot_ground * true_zoom) / 2)
-        # )
+
         for e in to_render:
             # print(e)
             dest.blit(
